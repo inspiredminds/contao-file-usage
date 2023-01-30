@@ -1,0 +1,51 @@
+{
+    "name": "inspiredminds/contao-file-usage",
+    "description": "Contao extension that allows you to search for references of files in the database assisted file manager.",
+    "type": "contao-bundle",
+    "license": "LGPL-3.0-or-later",
+    "homepage": "https://github.com/inspiredminds/contao-file-usage",
+    "authors": [
+        {
+            "name": "Fritz Michael Gschwantner",
+            "email": "fmg@inspiredminds.at",
+            "role": "Developer"
+        }
+    ],
+	"support": {
+		"issues": "https://github.com/inspiredminds/contao-file-usage/issues",
+		"source": "https://github.com/inspiredminds/contao-file-usage",
+		"forum": "https://community.contao.org/de"
+	},
+	"funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/fritzmg"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "contao/core-bundle": "^4.9",
+        "symfony/config": "^4.4 || ^5.1",
+        "symfony/dependency-injection": "^4.4 || ^5.1",
+        "symfony/http-foundation": "^4.4 || ^5.1",
+        "symfony/http-kernel": "^4.4 || ^5.1",
+        "symfony/translation": "^4.4 || ^5.1",
+        "webmozart/path-util": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "InspiredMinds\\ContaoFileUsage\\": "src/"
+        }
+    },
+    "extra": {
+        "contao-manager-plugin": "InspiredMinds\\ContaoFileUsage\\ContaoManager\\Plugin"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16 || ^3.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "contao-components/installer": true
+        }
+    }
+}

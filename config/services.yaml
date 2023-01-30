@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        autoconfigure: true
+
+    contao_file_usage.finder:
+        class: InspiredMinds\ContaoFileUsage\FileUsageFinder
+        arguments:
+            - '@contao.framework'
+            - !tagged_iterator { tag: contao_file_usage.provider }
+
+    contao_file_usage.provider.data_container:
+        class: InspiredMinds\ContaoFileUsage\Provider\DataContainerProvider
+        arguments:
+            - '@contao.framework'
+            - '@database_connection'
+            - '@contao.resource_finder'
+
+    InspiredMinds\ContaoFileUsage\FileUsageFinder: '@contao_file_usage.finder'
+    InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider: '@contao_file_usage.provider.database'
