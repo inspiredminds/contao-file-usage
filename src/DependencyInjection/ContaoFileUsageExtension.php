@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Contao Image Alternatives extension.
+ * This file is part of the Contao File Usage extension.
  *
  * (c) inspiredminds
  *

@@ -11,7 +11,7 @@ EOF;
 $finder = (new PhpCsFixer\Finder())
     ->exclude('Resources/contao/templates')
     ->in([
-        __DIR__.'/contao',
+        //__DIR__.'/contao',
         __DIR__.'/src',
     ])
 ;

@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
@@ -14,7 +24,7 @@ class FileUsageFinder implements FileUsageFinderInterface
     private $framework;
     private $provider;
 
-    /** 
+    /**
      * @param FileUsageProviderInterface[] $provider
      */
     public function __construct(ContaoFramework $framework, iterable $provider)

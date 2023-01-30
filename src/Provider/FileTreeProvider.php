@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Provider;
 
 use Contao\Controller;
@@ -12,7 +22,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 
-/** 
+/**
  * Searches for "fileTree" references in the database.
  */
 class FileTreeProvider implements FileUsageProviderInterface
@@ -77,11 +87,11 @@ class FileTreeProvider implements FileUsageProviderInterface
     private function searchForSingle(string $table, string $field, string $uuid, string $pk = null): Results
     {
         $results = new Results($uuid);
-        
+
         $occurrences = $this->db->fetchAllAssociative('
-            SELECT * FROM '.$this->db->quoteIdentifier($table).' 
-             WHERE '.$this->db->quoteIdentifier($field). ' = ?
-                OR '.$this->db->quoteIdentifier($field). ' = ?',
+            SELECT * FROM '.$this->db->quoteIdentifier($table).'
+             WHERE '.$this->db->quoteIdentifier($field).' = ?
+                OR '.$this->db->quoteIdentifier($field).' = ?',
             [$uuid, StringUtil::uuidToBin($uuid)]
         );
 
@@ -97,9 +107,9 @@ class FileTreeProvider implements FileUsageProviderInterface
         $results = new Results($uuid);
 
         $occurrences = $this->db->fetchAllAssociative('
-            SELECT * FROM '.$this->db->quoteIdentifier($table).' 
-             WHERE '.$this->db->quoteIdentifier($field). ' LIKE ?
-                OR '.$this->db->quoteIdentifier($field). ' LIKE ?',
+            SELECT * FROM '.$this->db->quoteIdentifier($table).'
+             WHERE '.$this->db->quoteIdentifier($field).' LIKE ?
+                OR '.$this->db->quoteIdentifier($field).' LIKE ?',
             ['%s:16:"'.$uuid.'";%', '%s:16:"'.StringUtil::uuidToBin($uuid).'";%']
         );
 

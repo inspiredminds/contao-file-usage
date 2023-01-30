@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Provider;
 
 use Doctrine\DBAL\Connection;
@@ -9,7 +19,7 @@ use Doctrine\DBAL\Types\TextType;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 
-/** 
+/**
  * Searches for insert tag file references (file, picture, figure) in the database.
  */
 class DatabaseInsertTagProvider implements FileUsageProviderInterface
@@ -45,7 +55,7 @@ class DatabaseInsertTagProvider implements FileUsageProviderInterface
                 $regex = $this->db->getDatabasePlatform()->getRegexpExpression();
 
                 $occurrences = $this->db->fetchAllAssociative('
-                    SELECT * FROM '.$this->db->quoteIdentifier($tableName).' 
+                    SELECT * FROM '.$this->db->quoteIdentifier($tableName).'
                      WHERE '.$this->db->quoteIdentifier($field).' '.$regex.' ?',
                     ['{{(file|picture|figure)::'.$uuid.'((\||\?)[^}]+)?}}']
                 );

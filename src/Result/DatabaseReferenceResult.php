@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Result;
 
 class DatabaseReferenceResult implements DatabaseReferenceResultInterface
@@ -15,6 +25,11 @@ class DatabaseReferenceResult implements DatabaseReferenceResultInterface
         $this->id = $id;
     }
 
+    public function __toString(): string
+    {
+        return $this->table.'.'.$this->field.' (ID '.$this->id.')';
+    }
+
     public function getTable(): string
     {
         return $this->table;
@@ -28,10 +43,5 @@ class DatabaseReferenceResult implements DatabaseReferenceResultInterface
     public function getId()
     {
         return $this->id;
-    }
-
-    public function __toString(): string
-    {
-        return $this->table.'.'.$this->field.' (ID '.$this->id.')';
     }
 }

@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Result;
 
 use ArrayIterator;
@@ -11,7 +21,7 @@ class Results implements IteratorAggregate, Countable
 {
     private string $uuid;
 
-    /** 
+    /**
      * @var list<ResultInterface>
      */
     private $results = [];
@@ -26,7 +36,7 @@ class Results implements IteratorAggregate, Countable
         return $this->uuid;
     }
 
-    /** 
+    /**
      * @return list<ResultInterface>
      */
     public function getResults(): array
@@ -48,7 +58,7 @@ class Results implements IteratorAggregate, Countable
         return $this;
     }
 
-    public function addResults(Results $results): self
+    public function addResults(self $results): self
     {
         foreach ($results as $result) {
             $this->addResult($result);
@@ -78,6 +88,6 @@ class Results implements IteratorAggregate, Countable
 
     public function count(): int
     {
-        return count($this->results);
+        return \count($this->results);
     }
 }

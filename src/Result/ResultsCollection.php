@@ -1,25 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Result;
 
 use ArrayAccess;
 use ArrayIterator;
 use Countable;
-use InspiredMinds\ContaoFileUsage\Result\Results;
 use IteratorAggregate;
 use Traversable;
 
-/** 
+/**
  * Stores Results per UUID.
  */
 class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
 {
-    /** 
+    /**
      * @var array<string, Results>
      */
     private $results = [];
 
-    public function mergeCollection(ResultsCollection $collection): self
+    public function mergeCollection(self $collection): self
     {
         foreach ($collection as $uuid => $results) {
             $this->addResults($uuid, $results);
@@ -34,7 +43,7 @@ class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
             if (!isset($this->results[$uuid])) {
                 $this->results[$uuid] = new Results($uuid);
             }
-    
+
             $this->results[$uuid]->addResults($results);
         }
 
@@ -79,6 +88,6 @@ class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
 
     public function count(): int
     {
-        return count($this->results);
+        return \count($this->results);
     }
 }
