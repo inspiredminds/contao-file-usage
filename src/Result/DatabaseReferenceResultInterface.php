@@ -2,7 +2,7 @@
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-interface FileUsageDatabaseResultInterface extends FileUsageResultInterface
+interface DatabaseReferenceResultInterface extends ResultInterface
 {
     public function getTable(): string;
 

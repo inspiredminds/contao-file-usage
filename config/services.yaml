@@ -8,8 +8,13 @@ services:
             - '@contao.framework'
             - !tagged_iterator { tag: contao_file_usage.provider }
 
-    contao_file_usage.provider.data_container:
-        class: InspiredMinds\ContaoFileUsage\Provider\DataContainerProvider
+    contao_file_usage.provider.database_insert_tag:
+        class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
+        arguments:
+            - '@database_connection'
+
+    contao_file_usage.provider.file_tree:
+        class: InspiredMinds\ContaoFileUsage\Provider\FileTreeProvider
         arguments:
             - '@contao.framework'
             - '@database_connection'

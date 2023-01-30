@@ -2,7 +2,7 @@
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-class FileUsageDatabaseResult extends AbstractFileUsageResult implements FileUsageDatabaseResultInterface
+class DatabaseReferenceResult implements DatabaseReferenceResultInterface
 {
     private string $table;
     private string $field;
@@ -28,19 +28,6 @@ class FileUsageDatabaseResult extends AbstractFileUsageResult implements FileUsa
     public function getId()
     {
         return $this->id;
-    }
-
-    public function isEqual(FileUsageResultInterface $result): bool
-    {
-        if (!$result instanceof FileUsageDatabaseResultInterface) {
-            return false;
-        }
-
-        return 
-            $result->getTable() === $this->table &&
-            $result->getField() === $this->field &&
-            $result->getId() === $this->id
-        ;
     }
 
     public function __toString(): string

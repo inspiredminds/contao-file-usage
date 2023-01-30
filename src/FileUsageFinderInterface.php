@@ -2,13 +2,15 @@
 
 namespace InspiredMinds\ContaoFileUsage;
 
-use InspiredMinds\ContaoFileUsage\Result\FileUsageResultsCollection;
+use InspiredMinds\ContaoFileUsage\Result\Results;
+use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 interface FileUsageFinderInterface
 {
-    /** 
-     * @param list<string>|string A single UUID or list of uuids to find the usages for.
-     * @return FileUsageResultsCollection
+    /**
+     * @param string|list<string>
      */
-    public function find($uuids): FileUsageResultsCollection;
+    public function find($uuid): ResultsCollection;
+
+    public function findAll(): ResultsCollection;
 }

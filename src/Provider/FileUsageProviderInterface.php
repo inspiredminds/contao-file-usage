@@ -2,9 +2,9 @@
 
 namespace InspiredMinds\ContaoFileUsage\Provider;
 
-use InspiredMinds\ContaoFileUsage\Result\FileUsageResults;
+use InspiredMinds\ContaoFileUsage\Result\Results;
 
 interface FileUsageProviderInterface
 {
-    public function find(string $uuid): FileUsageResults;
+    public function find(string $uuid): Results;
 }

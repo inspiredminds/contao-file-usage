@@ -5,25 +5,23 @@ namespace InspiredMinds\ContaoFileUsage\Provider;
 use Contao\Controller;
 use Contao\CoreBundle\Config\ResourceFinder;
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\FilesModel;
 use Contao\StringUtil;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use InspiredMinds\ContaoFileUsage\Result\FileUsageDatabaseResult;
-use InspiredMinds\ContaoFileUsage\Result\FileUsageResults;
+use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
+use InspiredMinds\ContaoFileUsage\Result\Results;
 
 /** 
  * Searches for "fileTree" references in the database.
  */
-class DataContainerProvider implements FileUsageProviderInterface
+class FileTreeProvider implements FileUsageProviderInterface
 {
+    use DatabaseProviderTrait;
+
     private $framework;
     private $db;
     private $resourceFinder;
-
-    /** 
-     * @var AbstractSchemaManager
-     */
-    private $schemaManager;
 
     public function __construct(ContaoFramework $framework, Connection $db, ResourceFinder $resourceFinder)
     {
@@ -32,13 +30,14 @@ class DataContainerProvider implements FileUsageProviderInterface
         $this->resourceFinder = $resourceFinder;
     }
 
-    public function find(string $uuid): FileUsageResults
+    public function find(string $uuid): Results
     {
         $this->framework->initialize();
+
         /** @var AbstractSchemaManager $schemaManager */
         $schemaManager = method_exists($this->db, 'createSchemaManager') ? $this->db->createSchemaManager() : $this->db->getSchemaManager();
-        $results = new FileUsageResults();
 
+        $results = new Results($uuid);
         $dcaFiles = $this->resourceFinder->findIn('dca')->depth(0)->files()->name('*.php');
         $processed = [];
 
@@ -50,9 +49,8 @@ class DataContainerProvider implements FileUsageProviderInterface
             }
 
             $processed[] = $tableName;
-
+            $pk = $this->getPrimaryKey($tableName, $schemaManager);
             Controller::loadDataContainer($tableName);
-
             $fields = $GLOBALS['TL_DCA'][$tableName]['fields'] ?? [];
 
             foreach ($fields as $field => $config) {
@@ -60,10 +58,13 @@ class DataContainerProvider implements FileUsageProviderInterface
                     continue;
                 }
 
-                $pk = $this->getPrimaryKey($tableName, $schemaManager);
-
                 if ($config['eval']['multiple'] ?? false) {
-                    //
+                    $results->addResults($this->searchForMultiple($tableName, $field, $uuid, $pk));
+                    $results->addResults($this->searchForFolders($tableName, $field, $uuid, $pk));
+
+                    if ($config['eval']['orderSRC'] ?? false) {
+                        $results->addResults($this->searchForMultiple($tableName, $config['eval']['orderSRC'], $uuid, $pk));
+                    }
                 } else {
                     $results->addResults($this->searchForSingle($tableName, $field, $uuid, $pk));
                 }
@@ -73,32 +74,46 @@ class DataContainerProvider implements FileUsageProviderInterface
         return $results;
     }
 
-    private function searchForSingle(string $table, string $field, string $uuid, string $pk = null): FileUsageResults
+    private function searchForSingle(string $table, string $field, string $uuid, string $pk = null): Results
     {
-        $results = new FileUsageResults();
+        $results = new Results($uuid);
         
         $occurrences = $this->db->fetchAllAssociative('
             SELECT * FROM '.$this->db->quoteIdentifier($table).' 
-                WHERE '.$this->db->quoteIdentifier($field). ' = ?
+             WHERE '.$this->db->quoteIdentifier($field). ' = ?
                 OR '.$this->db->quoteIdentifier($field). ' = ?',
             [$uuid, StringUtil::uuidToBin($uuid)]
         );
 
         foreach ($occurrences as $occurrence) {
-            $results->addResult(new FileUsageDatabaseResult($table, $field, $occurrence[$pk] ?? null));
+            $results->addResult(new DatabaseReferenceResult($table, $field, $occurrence[$pk] ?? null));
         }
 
         return $results;
     }
 
-    private function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): ?string
+    private function searchForMultiple(string $table, string $field, string $uuid, string $pk = null): Results
     {
-        $table = $schemaManager->listTableDetails($table) ?? null;
+        $results = new Results($uuid);
 
-        if (null === $table || !$table->hasPrimaryKey()) {
-            return null;
+        $occurrences = $this->db->fetchAllAssociative('
+            SELECT * FROM '.$this->db->quoteIdentifier($table).' 
+             WHERE '.$this->db->quoteIdentifier($field). ' LIKE ?
+                OR '.$this->db->quoteIdentifier($field). ' LIKE ?',
+            ['%s:16:"'.$uuid.'";%', '%s:16:"'.StringUtil::uuidToBin($uuid).'";%']
+        );
+
+        foreach ($occurrences as $occurrence) {
+            $results->addResult(new DatabaseReferenceResult($table, $field, $occurrence[$pk] ?? null));
         }
 
-        return $table->getPrimaryKeyColumns()[0];
+        return $results;
+    }
+
+    private function searchForFolders(string $table, string $field, string $uuid, string $pk = null): Results
+    {
+        $file = FilesModel::findByUuid($uuid);
+
+        return $this->searchForMultiple($table, $field, StringUtil::binToUuid($file->pid), $pk);
     }
 }
