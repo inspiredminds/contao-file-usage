@@ -8,6 +8,13 @@ services:
             - '@contao.framework'
             - !tagged_iterator { tag: contao_file_usage.provider }
 
+    contao_file_usage.cached_finder:
+        class: InspiredMinds\ContaoFileUsage\CachedFileUsageFinder
+        arguments:
+            - '@contao.framework'
+            - '@contao_file_usage.finder'
+            - '@contao_file_usage.file_usage_cache'       
+
     contao_file_usage.provider.database_insert_tag:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
         arguments:
@@ -20,5 +27,10 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
 
+    contao_file_usage.file_usage_cache:
+        class: Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter
+        arguments: ['fileusage', 86400, '%kernel.cache_dir%']
+
+    InspiredMinds\ContaoFileUsage\CachedFileUsageFinder: '@contao_file_usage.cached_finder'
     InspiredMinds\ContaoFileUsage\FileUsageFinder: '@contao_file_usage.finder'
     InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider: '@contao_file_usage.provider.database'

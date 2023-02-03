@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-class DatabaseReferenceResult implements DatabaseReferenceResultInterface
+class DatabaseReferenceResult implements ResultInterface
 {
     private string $table;
     private string $field;
@@ -23,11 +23,6 @@ class DatabaseReferenceResult implements DatabaseReferenceResultInterface
         $this->table = $table;
         $this->field = $field;
         $this->id = $id;
-    }
-
-    public function __toString(): string
-    {
-        return $this->table.'.'.$this->field.' (ID '.$this->id.')';
     }
 
     public function getTable(): string

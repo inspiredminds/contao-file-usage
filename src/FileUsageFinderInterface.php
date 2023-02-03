@@ -12,14 +12,12 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage;
 
+use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 interface FileUsageFinderInterface
 {
-    /**
-     * @param string|list<string>
-     */
-    public function find($uuid): ResultsCollection;
+    public function find(string $uuid): Results;
 
     public function findAll(): ResultsCollection;
 }

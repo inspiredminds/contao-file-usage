@@ -50,6 +50,11 @@ class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
         return $this;
     }
 
+    public function hasResults(): bool
+    {
+        return $this->count() > 0;
+    }
+
     /**
      * @return Traversable<string, Results>
      */

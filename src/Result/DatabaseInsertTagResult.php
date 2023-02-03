@@ -12,6 +12,6 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-class DatabaseInsertTagResult extends DatabaseReferenceResult implements DatabaseInsertTagResultInterface
+class DatabaseInsertTagResult extends DatabaseReferenceResult
 {
 }

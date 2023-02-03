@@ -16,37 +16,40 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
 use Contao\StringUtil;
 use Contao\Validator;
-use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
-class FileUsageFinder implements FileUsageFinderInterface
+class CachedFileUsageFinder implements FileUsageFinderInterface
 {
     private $framework;
-    private $provider;
+    private $fileUsagefinder;
+    private $cache;
 
-    /**
-     * @param FileUsageProviderInterface[] $provider
-     */
-    public function __construct(ContaoFramework $framework, iterable $provider)
+    public function __construct(ContaoFramework $framework, FileUsageFinder $fileUsagefinder, AdapterInterface $cache)
     {
         $this->framework = $framework;
-        $this->provider = $provider;
+        $this->fileUsagefinder = $fileUsagefinder;
+        $this->cache = $cache;
     }
 
     public function find(string $uuid): Results
     {
-        $results = new Results($uuid);
-
         $this->framework->initialize();
 
         if (!Validator::isStringUuid($uuid)) {
             throw new \InvalidArgumentException('"'.$uuid.'" is not a valid UUID.');
         }
 
-        foreach ($this->provider as $provider) {
-            $results->addResults($provider->find($uuid));
+        $cacheItem = $this->cache->getItem($uuid);
+
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
         }
+
+        $results = $this->fileUsagefinder->find($uuid);
+        $cacheItem->set($results);
+        $this->cache->save($cacheItem);
 
         return $results;
     }
