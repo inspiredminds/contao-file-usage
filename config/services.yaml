@@ -14,8 +14,7 @@ services:
             - '@contao_file_usage.file_usage_cache'
             - !tagged_iterator { tag: contao_file_usage.provider }
 
-    contao_file_usage.controller.replace_file_references:
-        class: InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController
+    InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController:
         arguments:
             - '@twig'
             - '@contao.framework'

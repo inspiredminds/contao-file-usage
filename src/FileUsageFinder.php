@@ -43,8 +43,8 @@ class FileUsageFinder implements FileUsageFinderInterface
 
         $this->framework->initialize();
 
-        if (!Validator::isStringUuid($uuid)) {
-            throw new \InvalidArgumentException('"'.$uuid.'" is not a valid UUID.');
+        if (Validator::isBinaryUuid($uuid)) {
+            $uuid = StringUtil::binToUuid($uuid);
         }
 
         $cacheItem = $this->cache->getItem($uuid);

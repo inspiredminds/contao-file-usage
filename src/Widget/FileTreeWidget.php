@@ -52,6 +52,8 @@ class FileTreeWidget extends FileTree
 
         $preview .= '<a class="replace-image" href="'.$url.'" title="'.$translator->trans('replace_image', ['%path%' => $file->path]).'"><img src="/bundles/contaofileusage/repeat.svg" alt=""></a>';
 
+        $GLOBALS['TL_CSS'][] = 'bundles/contaofileusage/backend.css';
+
         return $preview;
     }
 }

@@ -98,6 +98,11 @@ class ReplaceFileReferencesController
                 continue;
             }
 
+            // Ignore any references without an ID
+            if (!$usage->getId()) {
+                continue;
+            }
+
             $table = $usage->getTable();
             $usageResult = ['result' => $usage];
 
@@ -106,7 +111,7 @@ class ReplaceFileReferencesController
                     'do' => $module,
                     'ref' => $request->attributes->get('_contao_referer_id'),
                     'table' => $table,
-                    'id' => $usage->id,
+                    'id' => $usage->getId(),
                     'act' => 'edit',
                     'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
                 ]);
@@ -134,10 +139,10 @@ class ReplaceFileReferencesController
             'ref' => $request->attributes->get('_contao_referer_id'),
         ]);
 
-        return new Response($this->twig->render('@ContaoFileUsage/replace_file_reference.html.twig', [
+        return new Response($this->twig->render('@ContaoFileUsage/replace_file_references.html.twig', [
             'file' => $file,
             'back_url' => $backUrl,
-            'usages' => $usageResult,
+            'usages' => $usageResults,
             'sourceTable' => $sourceTable,
             'sourceId' => $sourceId,
             'requestToken' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),

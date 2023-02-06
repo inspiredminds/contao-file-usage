@@ -1,0 +1,23 @@
+.selector_container > ul:not(.sgallery) {
+    display: flex;
+}
+
+.selector_container > ul > li {
+    position: relative;
+}
+
+.selector_container > ul > li > .replace-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 16px;
+    height: 16px;
+    background-color: #f9f9f9;
+}
+
+.selector_container > ul > li > .replace-image > img {
+    display: block;
+}
