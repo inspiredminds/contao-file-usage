@@ -2,18 +2,40 @@ services:
     _defaults:
         autoconfigure: true
 
+    contao_file_usage.file_usage_cache:
+        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+        arguments: ['fileusage', 86400, '%kernel.cache_dir%']
+
     contao_file_usage.finder:
         class: InspiredMinds\ContaoFileUsage\FileUsageFinder
+        public: true
         arguments:
             - '@contao.framework'
+            - '@contao_file_usage.file_usage_cache'
             - !tagged_iterator { tag: contao_file_usage.provider }
 
-    contao_file_usage.cached_finder:
-        class: InspiredMinds\ContaoFileUsage\CachedFileUsageFinder
+    contao_file_usage.controller.replace_file_references:
+        class: InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController
         arguments:
+            - '@twig'
             - '@contao.framework'
+            - '@translator'
+            - '@router'
             - '@contao_file_usage.finder'
-            - '@contao_file_usage.file_usage_cache'       
+            - '@contao.csrf.token_manager'
+            - '%contao.csrf_token_name%'
+        tags: ['controller.service_arguments']
+
+    contao_file_usage.cron.build_cache:
+        class: InspiredMinds\ContaoFileUsage\Cron\BuildCacheCronJob
+        arguments:
+            - '@contao_file_usage.finder' 
+
+    contao_file_usage.maintenance.clear_file_usage_cache:
+        class: InspiredMinds\ContaoFileUsage\Maintenance\ClearFileUsageCache
+        public: true
+        arguments: 
+            - '@contao_file_usage.file_usage_cache'
 
     contao_file_usage.provider.database_insert_tag:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
@@ -27,10 +49,5 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
 
-    contao_file_usage.file_usage_cache:
-        class: Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter
-        arguments: ['fileusage', 86400, '%kernel.cache_dir%']
-
-    InspiredMinds\ContaoFileUsage\CachedFileUsageFinder: '@contao_file_usage.cached_finder'
     InspiredMinds\ContaoFileUsage\FileUsageFinder: '@contao_file_usage.finder'
-    InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider: '@contao_file_usage.provider.database'
+    InspiredMinds\ContaoFileUsage\FileUsageFinderInterface: '@contao_file_usage.finder'

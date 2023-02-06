@@ -19,22 +19,25 @@ use Contao\Validator;
 use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class FileUsageFinder implements FileUsageFinderInterface
 {
     private $framework;
+    private $cache;
     private $provider;
 
     /**
      * @param FileUsageProviderInterface[] $provider
      */
-    public function __construct(ContaoFramework $framework, iterable $provider)
+    public function __construct(ContaoFramework $framework, AdapterInterface $cache, iterable $provider)
     {
         $this->framework = $framework;
+        $this->cache = $cache;
         $this->provider = $provider;
     }
 
-    public function find(string $uuid): Results
+    public function find(string $uuid, bool $useCache = true): Results
     {
         $results = new Results($uuid);
 
@@ -44,14 +47,23 @@ class FileUsageFinder implements FileUsageFinderInterface
             throw new \InvalidArgumentException('"'.$uuid.'" is not a valid UUID.');
         }
 
+        $cacheItem = $this->cache->getItem($uuid);
+
+        if ($useCache && $cacheItem->isHit()) {
+            return $cacheItem->get();
+        }
+
         foreach ($this->provider as $provider) {
             $results->addResults($provider->find($uuid));
         }
 
+        $cacheItem->set($results);
+        $this->cache->save($cacheItem);
+
         return $results;
     }
 
-    public function findAll(): ResultsCollection
+    public function findAll(bool $useCache = true): ResultsCollection
     {
         $collection = new ResultsCollection();
 
@@ -59,7 +71,7 @@ class FileUsageFinder implements FileUsageFinderInterface
 
         foreach (FilesModel::findByType('file') ?? [] as $file) {
             $uuid = StringUtil::binToUuid($file->uuid);
-            $collection->addResults($uuid, $this->find(StringUtil::binToUuid($file->uuid)));
+            $collection->addResults($uuid, $this->find(StringUtil::binToUuid($file->uuid), $useCache));
         }
 
         return $collection;

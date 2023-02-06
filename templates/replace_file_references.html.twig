@@ -1,0 +1,56 @@
+{% extends "@ContaoCore/Backend/be_page.html.twig" %}
+
+{% block headline %}
+  <span>{{ 'replace_image_headline'|trans }}</span> <span>{{ file.name }}</span>
+{% endblock %}
+
+{% block error %}
+{% endblock %}
+
+{% block main %}
+  <div class="tl_message"><p class="tl_error">Diese Funktion findet unter Umständen nicht alle Referenzen dieser Datei. Falls sichergestellt werden muss, dass ein Bild komplett ersetzt ist, dann ist die einzige Möglichkeit das Bild direkt in der <a style="text-decoration:underline" href="{{ fileManagerUrl }}">Dateiverwaltung</a> zu ersetzen, indem man ein Bild mit dem selben Namen in den selben Ordner <a style="text-decoration:underline" href="{{ uploadUrl }}">hochlädt</a>.</p></div>
+
+  <div id="tl_buttons">
+    <a href="{{ back_url }}" class="header_back">{{ 'MSC.goBack'|trans({}, 'contao_default') }}</a>
+  </div>
+
+  <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
+    <div class="tl_formbody_edit">
+      <fieldset class="tl_box">
+        <div class="widget">
+          {{ fileWidget|raw }}
+          <p class="tl_help tl_tip">{{ 'tl_content.singleSRC.1'|trans({}, 'contao_tl_content') }}</p>
+        </div>
+        <div class="widget">
+          <fieldset class="tl_checkbox_container">
+            <legend>{{ 'replace_image_references'|trans }}</legend>
+            <input type="hidden" name="elements" value="">
+            <div>
+              <input type="checkbox" id="check_all_themes" class="tl_checkbox" onclick="Backend.toggleCheckboxGroup(this,'ctrl_themes')"> <label for="check_all_themes" style="color:#a6a6a6"><em>{{ 'MSC.selectAll'|trans({}, 'contao_default') }}</em></label>
+            </div>
+            {% spaceless %}
+              {% for u in usages %}
+                  <div>
+                    <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ u.table }}.{{ u.id }}" id="opt_{{ u.table }}.{{ u.id }}" {% if sourceTable == u.table and sourceId == u.id %} checked{% endif %}>
+                    <label for="opt_{{ u.table }}.{{ u.id }}">
+                      {% if u.module|default %}
+                        {{ ('MOD.' ~ u.module ~ '.0')|trans({}, 'contao_modules') }} »  {{ ('MOD.' ~ u.table)|trans({}, 'contao_modules') }} » <a href="{{ u.url }}" target="_blank">ID {{ u.id }}</a>
+                      {% else %}
+                        {{ u.table }}.{{ u.id }}
+                      {% endif %}
+                    </label>
+                  <div>
+              {% endfor %}
+            {% endspaceless %}
+          </fieldset>
+        </div>
+      </fieldset>
+    </div>
+    <div class="tl_formbody_submit">
+      <div class="tl_submit_container">
+        <button class="tl_submit" type="submit">{{ 'replace_image_send'|trans }}</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

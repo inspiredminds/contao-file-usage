@@ -17,7 +17,7 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 interface FileUsageFinderInterface
 {
-    public function find(string $uuid): Results;
+    public function find(string $uuid, bool $useCache = true): Results;
 
-    public function findAll(): ResultsCollection;
+    public function findAll(bool $useCache = true): ResultsCollection;
 }
