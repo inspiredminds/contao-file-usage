@@ -26,6 +26,9 @@ class FileTreeWidget extends FileTree
 {
     protected function getPreviewImage(File $file, $info, $class = 'gimage')
     {
+        $GLOBALS['TL_CSS'][] = 'bundles/contaofileusage/backend.css';
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/contaofileusage/backend.js';
+
         $preview = parent::getPreviewImage($file, $info, $class);
         $model = FilesModel::findByPath($file->path);
 
@@ -51,8 +54,6 @@ class FileTreeWidget extends FileTree
         $translator = $container->get('translator');
 
         $preview .= '<a class="replace-image" href="'.$url.'" title="'.$translator->trans('replace_image', ['%path%' => $file->path], 'ContaoFileUsage').'"><img src="/bundles/contaofileusage/repeat.svg" alt=""></a>';
-
-        $GLOBALS['TL_CSS'][] = 'bundles/contaofileusage/backend.css';
 
         return $preview;
     }

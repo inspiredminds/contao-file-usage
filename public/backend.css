@@ -21,3 +21,16 @@
 .selector_container > ul > li > .replace-image > img {
     display: block;
 }
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.selector_container > ul > li > .replace-image > img.rotate {
+    animation-name: rotate;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+}
