@@ -86,6 +86,20 @@ class FileReferenceReplacer implements FileReferenceReplacerInterface
 
             return;
         }
+
+        if ($result instanceof DatabaseReferenceResult) {
+            $oldUuid = $this->convertUuidToBin($oldUuid);
+            $newUuid = $this->convertUuidToBin($newUuid);
+
+            $this->db->update($result->getTable(), [$result->getField() => $newUuid], [$result->getPk() => $result->getId(), $result->getField() => $oldUuid]);
+
+            $oldUuid = $this->convertUuidToString($oldUuid);
+            $newUuid = $this->convertUuidToString($newUuid);
+
+            $this->db->update($result->getTable(), [$result->getField() => $newUuid], [$result->getPk() => $result->getId(), $result->getField() => $oldUuid]);
+
+            return;
+        }
     }
 
     private function convertUuidToBin(string $uuid): string

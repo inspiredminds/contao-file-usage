@@ -16,6 +16,7 @@ expand this search to other locations you can implement your own _file usage pro
 // src/FileUsage/FoobarProvider.php
 use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
+use InspiredMinds\ContaoFileUsage\Result\Results;
 
 class FoobarProvider implements FileUsageProviderInterface
 {
