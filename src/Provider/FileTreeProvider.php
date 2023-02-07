@@ -59,6 +59,10 @@ class FileTreeProvider implements FileUsageProviderInterface
                 continue;
             }
 
+            if (!$schemaManager->tablesExist($tableName)) {
+                continue;
+            }
+
             $processed[] = $tableName;
             $pk = $this->getPrimaryKey($tableName, $schemaManager);
             Controller::loadDataContainer($tableName);
@@ -66,6 +70,10 @@ class FileTreeProvider implements FileUsageProviderInterface
 
             foreach ($fields as $field => $config) {
                 if ('fileTree' !== ($config['inputType'] ?? '')) {
+                    continue;
+                }
+
+                if (!isset($schemaManager->listTableColumns($tableName)[strtolower($field)])) {
                     continue;
                 }
 
