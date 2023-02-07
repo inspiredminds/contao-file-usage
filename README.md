@@ -38,3 +38,8 @@ That is all you need to do, if you enabled `autoconfigure` for your service. Oth
 
 You might want or need to implement a new result container using the `ResultInterface` for your purposes (e.g. if your provider looks in
 the contents of files, rather than the database for example, which this extension currently does not do by default).
+
+## File Replacements
+
+This extension also replaces Contao's `fileTree` widget with its own implementation, showing an additional button with which you can replace
+the file references found for this file with a new reference.
