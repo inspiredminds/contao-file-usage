@@ -6,8 +6,8 @@ services:
         class: Symfony\Component\Cache\Adapter\FilesystemAdapter
         arguments: ['fileusage', 86400, '%kernel.cache_dir%']
 
-    contao_file_usage.finder:
-        class: InspiredMinds\ContaoFileUsage\FileUsageFinder
+    contao_file_usage.finder.file_usage:
+        class: InspiredMinds\ContaoFileUsage\Finder\FileUsageFinder
         public: true
         arguments:
             - '@contao.framework'
@@ -20,7 +20,10 @@ services:
             - '@contao.framework'
             - '@translator'
             - '@router'
-            - '@contao_file_usage.finder'
+            - '@contao_file_usage.finder.file_usage'
+            - '@contao_file_usage.replace.file_reference'
+            - '@contao_file_usage.file_usage_cache'
+            - '@database_connection'
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
         tags: ['controller.service_arguments']
@@ -28,7 +31,7 @@ services:
     contao_file_usage.cron.build_cache:
         class: InspiredMinds\ContaoFileUsage\Cron\BuildCacheCronJob
         arguments:
-            - '@contao_file_usage.finder' 
+            - '@contao_file_usage.finder.file_usage' 
 
     contao_file_usage.maintenance.clear_file_usage_cache:
         class: InspiredMinds\ContaoFileUsage\Maintenance\ClearFileUsageCache
@@ -48,5 +51,12 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
 
-    InspiredMinds\ContaoFileUsage\FileUsageFinder: '@contao_file_usage.finder'
-    InspiredMinds\ContaoFileUsage\FileUsageFinderInterface: '@contao_file_usage.finder'
+    contao_file_usage.replace.file_reference:
+        class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer
+        arguments:
+            - '@database_connection'
+            - '@contao.framework'
+
+    InspiredMinds\ContaoFileUsage\Finder\FileUsageFinder: '@contao_file_usage.finder.file_usage'
+    InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface: '@contao_file_usage.finder.file_usage'
+    InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacerInterface: '@contao_file_usage.replace.file_reference'

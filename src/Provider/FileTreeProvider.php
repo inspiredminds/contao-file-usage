@@ -19,7 +19,8 @@ use Contao\FilesModel;
 use Contao\StringUtil;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
+use InspiredMinds\ContaoFileUsage\Result\FileTreeMultipleResult;
+use InspiredMinds\ContaoFileUsage\Result\FileTreeSingleResult;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 
 /**
@@ -72,8 +73,8 @@ class FileTreeProvider implements FileUsageProviderInterface
                     $results->addResults($this->searchForMultiple($tableName, $field, $uuid, $pk));
                     $results->addResults($this->searchForFolders($tableName, $field, $uuid, $pk));
 
-                    if ($config['eval']['orderSRC'] ?? false) {
-                        $results->addResults($this->searchForMultiple($tableName, $config['eval']['orderSRC'], $uuid, $pk));
+                    if ($config['eval']['orderField'] ?? false) {
+                        $results->addResults($this->searchForMultiple($tableName, $config['eval']['orderField'], $uuid, $pk));
                     }
                 } else {
                     $results->addResults($this->searchForSingle($tableName, $field, $uuid, $pk));
@@ -92,11 +93,11 @@ class FileTreeProvider implements FileUsageProviderInterface
             SELECT * FROM '.$this->db->quoteIdentifier($table).'
              WHERE '.$this->db->quoteIdentifier($field).' = ?
                 OR '.$this->db->quoteIdentifier($field).' = ?',
-            [$uuid, StringUtil::uuidToBin($uuid)]
+            [$uuid, StringUtil::uuidToBin($uuid)],
         );
 
         foreach ($occurrences as $occurrence) {
-            $results->addResult(new DatabaseReferenceResult($table, $field, $occurrence[$pk] ?? null));
+            $results->addResult(new FileTreeSingleResult($table, $field, $occurrence[$pk] ?? null, $pk));
         }
 
         return $results;
@@ -108,13 +109,13 @@ class FileTreeProvider implements FileUsageProviderInterface
 
         $occurrences = $this->db->fetchAllAssociative('
             SELECT * FROM '.$this->db->quoteIdentifier($table).'
-             WHERE '.$this->db->quoteIdentifier($field).' LIKE ?
-                OR '.$this->db->quoteIdentifier($field).' LIKE ?',
-            ['%s:16:"'.$uuid.'";%', '%s:16:"'.StringUtil::uuidToBin($uuid).'";%']
+             WHERE LOCATE(?, '.$this->db->quoteIdentifier($field).') > 0
+                OR LOCATE(?, '.$this->db->quoteIdentifier($field).') > 0',
+            ['s:16:"'.$uuid.'";', 's:16:"'.StringUtil::uuidToBin($uuid).'";'],
         );
 
         foreach ($occurrences as $occurrence) {
-            $results->addResult(new DatabaseReferenceResult($table, $field, $occurrence[$pk] ?? null));
+            $results->addResult(new FileTreeMultipleResult($table, $field, $occurrence[$pk] ?? null, $pk));
         }
 
         return $results;

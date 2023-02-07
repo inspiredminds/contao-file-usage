@@ -2,3 +2,5 @@ replace_image: Bild '%path%' ersetzen
 replace_image_headline: Bild ersetzen
 replace_image_send: Bild ersetzen
 replace_image_references: Referenzen
+edit_record: Eintrag ID %id% editieren
+replace_image_warning: Diese Funktion findet unter Umständen nicht alle Referenzen dieser Datei. Falls sichergestellt werden muss, dass ein Bild komplett ersetzt ist, dann ist die einzige Möglichkeit das Bild direkt in der <a style="text-decoration:underline" href="%fileManagerUrl%">Dateiverwaltung</a> zu ersetzen, indem man ein Bild mit dem selben Namen in den selben Ordner <a style="text-decoration:underline" href="%uploadUrl%">hochlädt</a>.

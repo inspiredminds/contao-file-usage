@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace InspiredMinds\ContaoFileUsage\Controller;
 
 use Contao\Config;
+use Contao\Controller;
 use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Dbafs;
@@ -20,12 +21,11 @@ use Contao\FilesModel;
 use Contao\FileTree;
 use Contao\StringUtil;
 use Contao\System;
-use Contao\Validator;
 use Doctrine\DBAL\Connection;
-use InspiredMinds\ContaoFileUsage\FileUsageFinderInterface;
-use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
+use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
+use InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacerInterface;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
-use InspiredMinds\ContaoFileUsage\Result\ResultInterface;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,29 +44,35 @@ class ReplaceFileReferencesController
     private $translator;
     private $urlGenerator;
     private $fileUsageFinder;
+    private $replacer;
+    private $cache;
     private $db;
     private $csrfTokenManager;
     private $csrfTokenName;
 
-    public function __construct(Environment $twig, ContaoFramework $framework, TranslatorInterface $translator, UrlGeneratorInterface $urlGenerator, FileUsageFinderInterface $fileUsageFinder, Connection $db, ContaoCsrfTokenManager $csrfTokenManager, string $csrfTokenName)
+    private static $moduleKeyCache = [];
+
+    public function __construct(Environment $twig, ContaoFramework $framework, TranslatorInterface $translator, UrlGeneratorInterface $urlGenerator, FileUsageFinderInterface $fileUsageFinder, FileReferenceReplacerInterface $replacer, AdapterInterface $cache, Connection $db, ContaoCsrfTokenManager $csrfTokenManager, string $csrfTokenName)
     {
         $this->twig = $twig;
         $this->framework = $framework;
         $this->translator = $translator;
         $this->urlGenerator = $urlGenerator;
         $this->fileUsageFinder = $fileUsageFinder;
+        $this->replacer = $replacer;
+        $this->cache = $cache;
         $this->db = $db;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfTokenName = $csrfTokenName;
     }
 
     /**
-     * @Route("/contao/replace-file-reference/{fileUuid}/{sourceTable}/{sourceId}",
+     * @Route("/contao/replace-file-references/{fileUuid}/{sourceTable}/{sourceId}",
      *     name=ReplaceFileReferencesController::class,
      *     defaults={"_scope": "backend"}
      * )
      */
-    public function indexAction(Request $request, string $fileUuid, string $sourceTable, string $sourceId)
+    public function __invoke(Request $request, string $fileUuid, string $sourceTable, string $sourceId): Response
     {
         $this->framework->initialize();
 
@@ -88,7 +94,7 @@ class ReplaceFileReferencesController
         ]);
 
         if ($request->isXmlHttpRequest() && 'reloadFiletree' === $request->request->get('action') && $fileWidget->name === $request->request->get('name')) {
-            $fileWidget->value = Dbafs::addResource($request->request->get('value'))->uuid;
+            $fileWidget->value = Dbafs::addResource(urldecode($request->request->get('value')))->uuid;
 
             return new Response($fileWidget->generate());
         }
@@ -100,16 +106,7 @@ class ReplaceFileReferencesController
         }
 
         $session = $request->getSession();
-        $sessionData = $session->get(self::SESSION_KEY) ?? [];
         $uuid = StringUtil::binToUuid($file->uuid);
-
-        if (isset($sessionData[$uuid])) {
-            $usages = $sessionData[$uuid];
-        } else {
-            $usages = $this->fileUsageFinder->find($uuid);
-            $sessionData[$uuid] = $usages;
-            $session->set(self::SESSION_KEY, $sessionData);
-        }
 
         if (Request::METHOD_POST === $request->getMethod() && 'replace_images' === $request->request->get('FORM_SUBMIT')) {
             $fileWidget->validate();
@@ -117,14 +114,21 @@ class ReplaceFileReferencesController
             if (!$fileWidget->hasErrors()) {
                 $replaceElements = $request->request->get('elements');
 
+                $usages = $session->get(self::SESSION_KEY);
+
                 foreach ($replaceElements as $index) {
-                    $this->replace($usages[(int) $index], $uuid, $fileWidget->value);
+                    $this->replacer->replace($usages[(int) $index], $uuid, $fileWidget->value);
                 }
 
-                return new RedirectResponse($backUrl);
+                $this->cache->deleteItem($uuid);
+                $session->remove(self::SESSION_KEY);
+
+                return new RedirectResponse($request->request->get('_target_path', $backUrl));
             }
         }
 
+        $usages = $this->fileUsageFinder->find($uuid, false);
+        $session->set(self::SESSION_KEY, $usages);
         $usageResults = [];
 
         foreach ($usages as $usage) {
@@ -141,7 +145,18 @@ class ReplaceFileReferencesController
             $table = $usage->getTable();
             $usageResult = ['result' => $usage];
 
-            if ($module = $this->getModuleForTable($table)) {
+            // Fetch the record
+            $qb = $this->db->createQueryBuilder();
+            $record = $qb
+                ->select('*')
+                ->from($usage->getTable())
+                ->where($qb->expr()->eq($usage->getPk(), $usage->getId()))
+                ->execute()
+                ->fetchAssociative()
+            ;
+
+            // Get edit URL
+            if ($module = $this->getModuleForTable(($record['ptable'] ?? null) ?: $table)) {
                 $url = $this->urlGenerator->generate('contao_backend', [
                     'do' => $module,
                     'ref' => $request->attributes->get('_contao_referer_id'),
@@ -153,6 +168,35 @@ class ReplaceFileReferencesController
 
                 $usageResult['url'] = $url;
                 $usageResult['module'] = $module;
+            }
+
+            foreach (['title', 'name', 'headline'] as $titleField) {
+                if (!empty($record[$titleField])) {
+                    $title = StringUtil::deserialize($record[$titleField], true);
+                    $title = $title['value'] ?? reset($title);
+                    $usageResult['title'] = StringUtil::decodeEntities(StringUtil::stripInsertTags($title));
+                    break;
+                }
+            }
+
+            // Try to fetch the parent
+            if ($parentTable = $this->getParentTable($table, $record)) {
+                if ($parentTitle = $this->getTitle($parentTable, (int) $record['pid'])) {
+                    $usageResult['parent'] = $parentTitle;
+                }
+
+                if ($module = $this->getModuleForTable($parentTable)) {
+                    $url = $this->urlGenerator->generate('contao_backend', [
+                        'do' => $module,
+                        'ref' => $request->attributes->get('_contao_referer_id'),
+                        'table' => $parentTable,
+                        'id' => (int) $record['pid'],
+                        'act' => 'edit',
+                        'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+                    ]);
+
+                    $usageResult['parentEditUrl'] = $url;
+                }
             }
 
             $usageResults[] = $usageResult;
@@ -184,11 +228,16 @@ class ReplaceFileReferencesController
             'fileWidget' => $fileWidget->parse(),
             'fileManagerUrl' => $fileManagerUrl,
             'uploadUrl' => $uploadUrl,
+            'message' => $this->translator->trans('replace_image_warning', ['%fileManagerUrl%' => $fileManagerUrl, '%uploadUrl%' => $uploadUrl], 'ContaoFileUsage'),
         ]));
     }
 
     private function getModuleForTable(string $table): ?string
     {
+        if (isset(self::$moduleKeyCache[$table])) {
+            return self::$moduleKeyCache[$table];
+        }
+
         foreach ($GLOBALS['BE_MOD'] as $category) {
             foreach ($category as $moduleKey => $module) {
                 if (\in_array($table, $module['tables'] ?? [], true)) {
@@ -200,38 +249,46 @@ class ReplaceFileReferencesController
         return null;
     }
 
-    private function replace(ResultInterface $result, string $oldUuid, string $newUuid): void
+    private function getParentTable(string $table, array $record): ?string
     {
-        /** @var AbstractSchemaManager $schemaManager */
-        $schemaManager = method_exists($this->db, 'createSchemaManager') ? $this->db->createSchemaManager() : $this->db->getSchemaManager();
+        Controller::loadDataContainer($table);
+        $dca = $GLOBALS['TL_DCA'][$table] ?? null;
 
-        if ($result instanceof DatabaseInsertTagResult) {
-            if (Validator::isBinaryUuid($newUuid)) {
-                $newUuid = StringUtil::binToUuid($newUuid);
-            }
-
-            if (Validator::isBinaryUuid($oldUuid)) {
-                $oldUuid = StringUtil::binToUuid($oldUuid);
-            }
-
-            $this->db->executeQuery("
-                UPDATE ".$this->db->quoteIdentifier($result->getTable())." 
-                   SET ".$this->db->quoteIdentifier($result->getField())." = REPLACE(".$this->db->quoteIdentifier($result->getField()).", ?, ?)
-                 WHERE ".$this->db->quoteIdentifier($this->getPrimaryKey($result->getTable(), $schemaManager)." = ?")
-            , ['::'.$oldUuid, '::'.$newUuid, $result->getId()]);
-        }
-
-        dd($result, $newUuid);
-    }
-    
-    private function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): ?string
-    {
-        $table = $schemaManager->listTableDetails($table) ?? null;
-
-        if (null === $table || !$table->hasPrimaryKey()) {
+        if (empty($dca)) {
             return null;
         }
 
-        return $table->getPrimaryKeyColumns()[0];
+        $parentTable = null;
+
+        if ($dca['config']['dynamicPtable'] ?? false) {
+            $parentTable = ($record['ptable'] ?? null) ?: null;
+        } else {
+            $parentTable = $dca['config']['ptable'] ?? null;
+        }
+
+        return $parentTable;
+    }
+
+    private function getTitle(string $table, int $id): ?string
+    {
+        $qb = $this->db->createQueryBuilder();
+        $record = $qb
+            ->select('*')
+            ->from($table)
+            ->where($qb->expr()->eq('id', $id))
+            ->execute()
+            ->fetchAssociative()
+        ;
+
+        foreach (['title', 'name', 'headline'] as $titleField) {
+            if (!empty($record[$titleField])) {
+                $title = StringUtil::deserialize($record[$titleField], true);
+                $title = $title['value'] ?? reset($title);
+
+                return StringUtil::decodeEntities(StringUtil::stripInsertTags($title));
+            }
+        }
+
+        return null;
     }
 }

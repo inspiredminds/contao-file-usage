@@ -61,7 +61,7 @@ class DatabaseInsertTagProvider implements FileUsageProviderInterface
                 );
 
                 foreach ($occurrences as $occurrence) {
-                    $results->addResult(new DatabaseInsertTagResult($tableName, $field, $occurrence[$pk] ?? null));
+                    $results->addResult(new DatabaseInsertTagResult($tableName, $field, $occurrence[$pk] ?? null, $pk));
                 }
             }
         }

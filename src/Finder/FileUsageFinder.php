@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace InspiredMinds\ContaoFileUsage;
+namespace InspiredMinds\ContaoFileUsage\Finder;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
@@ -43,6 +43,10 @@ class FileUsageFinder implements FileUsageFinderInterface
 
         $this->framework->initialize();
 
+        if (!Validator::isUuid($uuid)) {
+            throw new \InvalidArgumentException(sprintf('"%s" ist not a valid UUID.', $uuid));
+        }
+
         if (Validator::isBinaryUuid($uuid)) {
             $uuid = StringUtil::binToUuid($uuid);
         }
@@ -71,7 +75,7 @@ class FileUsageFinder implements FileUsageFinderInterface
 
         foreach (FilesModel::findByType('file') ?? [] as $file) {
             $uuid = StringUtil::binToUuid($file->uuid);
-            $collection->addResults($uuid, $this->find(StringUtil::binToUuid($file->uuid), $useCache));
+            $collection->addResults($uuid, $this->find($uuid, $useCache));
         }
 
         return $collection;

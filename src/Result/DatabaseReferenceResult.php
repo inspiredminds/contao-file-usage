@@ -17,12 +17,20 @@ class DatabaseReferenceResult implements ResultInterface
     private string $table;
     private string $field;
     private $id;
+    private string $pk;
 
-    public function __construct(string $table, string $field, $id = null)
+    /**
+     * @param string      $table The database table
+     * @param string      $field The database field
+     * @param mixed       $id    The ID of the primary key of the database record
+     * @param string|null $pk    The primary key of the database table
+     */
+    public function __construct(string $table, string $field, $id = null, string $pk = null)
     {
         $this->table = $table;
         $this->field = $field;
         $this->id = $id;
+        $this->pk = $pk;
     }
 
     public function getTable(): string
@@ -38,5 +46,10 @@ class DatabaseReferenceResult implements ResultInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getPk(): ?string
+    {
+        return $this->pk;
     }
 }

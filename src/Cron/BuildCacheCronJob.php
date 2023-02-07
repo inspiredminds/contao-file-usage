@@ -15,7 +15,7 @@ namespace InspiredMinds\ContaoFileUsage\Cron;
 use Contao\CoreBundle\Cron\Cron;
 use Contao\CoreBundle\Exception\CronExecutionSkippedException;
 use Contao\CoreBundle\ServiceAnnotation\CronJob;
-use InspiredMinds\ContaoFileUsage\FileUsageFinderInterface;
+use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 
 /**
  * @CronJob("daily")

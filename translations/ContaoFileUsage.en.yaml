@@ -2,3 +2,5 @@ replace_image: Replace image '%path%'
 replace_image_headline: Replace image
 replace_image_send: Replace image
 replace_image_references: References
+edit_record: Edit record ID %id%
+replace_image_warning: This tool may not find all references of this image. If you want to make sure to replace the image completely then the only way is to use the <a style="text-decoration:underline" href="%fileManagerUrl%">file manager</a> and <a style="text-decoration:underline" href="%uploadUrl%">upload</a> an image with the same name as the original image in its original location.

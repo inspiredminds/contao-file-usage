@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block main %}
-  <div class="tl_message"><p class="tl_error">Diese Funktion findet unter Umständen nicht alle Referenzen dieser Datei. Falls sichergestellt werden muss, dass ein Bild komplett ersetzt ist, dann ist die einzige Möglichkeit das Bild direkt in der <a style="text-decoration:underline" href="{{ fileManagerUrl }}">Dateiverwaltung</a> zu ersetzen, indem man ein Bild mit dem selben Namen in den selben Ordner <a style="text-decoration:underline" href="{{ uploadUrl }}">hochlädt</a>.</p></div>
+  {% if message|default %}
+    <div class="tl_message"><p class="tl_error">{{ message|raw }}</p></div>
+  {% endif %}
 
   <div id="tl_buttons">
     <a href="{{ back_url }}" class="header_back">{{ 'MSC.goBack'|trans({}, 'contao_default') }}</a>
@@ -18,6 +20,7 @@
   <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
     <input type="hidden" name="FORM_SUBMIT" value="replace_images">
+    <input type="hidden" name="_target_path" value="{{ back_url }}">
     <div class="tl_formbody_edit">
       <fieldset class="tl_box">
         <div class="widget">
@@ -34,10 +37,10 @@
             {% spaceless %}
               {% for index, u in usages %}
                   <div>
-                    <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ index }}" id="opt_{{ u.result.getTable() }}.{{ u.result.getId() }}" {% if sourceTable == u.result.getTable() and sourceId == u.result.getId() %} checked{% endif %}>
-                    <label for="opt_{{ u.result.getTable() }}.{{ u.result.getId() }}">
+                    <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ index }}" id="opt_elements_{{ index }}" {% if sourceTable == u.result.getTable() and sourceId == u.result.getId() %} checked{% endif %}>
+                    <label for="opt_elements_{{ index }}">
                       {% if u.module|default %}
-                        {{ ('MOD.' ~ u.module ~ '.0')|trans({}, 'contao_modules') }} »  {{ ('MOD.' ~ u.result.getTable())|trans({}, 'contao_modules') }} » <a href="{{ u.url }}" target="_blank">ID {{ u.result.getId() }}</a>
+                        {{ ('MOD.' ~ u.module ~ '.0')|trans({}, 'contao_modules') }}{% if u.parent|default %} » {% if u.parentEditUrl|default %}<a href="{{ u.parentEditUrl }}" class="edit">{{ u.parent }}</a>{% else %}{{ u.parent }}{% endif %}{% endif %} » {{ ('MOD.' ~ u.result.getTable())|trans({}, 'contao_modules') }} » <a href="{{ u.url }}" target="_blank" class="edit" title="{{ 'edit_record'|trans({ '%id%': u.result.getId() }) }}">{% if u.title|default %}{{ u.title }} (ID {{ u.result.getId() }}){% else %}ID {{ u.result.getId() }}{% endif %}</a>
                       {% else %}
                         {{ u.result.getTable() }}.{{ u.result.getId() }}
                       {% endif %}
