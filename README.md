@@ -8,7 +8,7 @@ This Contao extension allows you to find and display file references of your fil
 
 ## Implement Custom Provider
 
-Currently this extension can find any references created by the `fileTree` input field of any (database based) DCA and it can fine any
+Currently this extension can find any references created by the `fileTree` input field of any (database based) DCA and it can find any
 references from `{{file::*}}`, `{{picture::*}}` and `{{figure::*}}` insert tags in any text based fields in the database. If you want to
 expand this search to other locations you can implement your own _file usage provider_ by implementing the `FileUsageProviderInterface`.
 
