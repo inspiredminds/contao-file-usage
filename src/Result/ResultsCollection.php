@@ -76,7 +76,7 @@ class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
     public function offsetSet($offset, $value): void
     {
         if (!$value instanceof Results) {
-            throw new \InvalidArgumentException('Value is not Results instance.');
+            throw new \InvalidArgumentException('Value is not a Results instance.');
         }
 
         if (!$value->hasResults()) {

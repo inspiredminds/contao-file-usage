@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
+use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
 use Traversable;
 
-class Results implements IteratorAggregate, Countable
+class Results implements IteratorAggregate, ArrayAccess, Countable
 {
     private string $uuid;
 
@@ -84,6 +85,30 @@ class Results implements IteratorAggregate, Countable
     public function getIterator(): Traversable
     {
         return new ArrayIterator($this->results);
+    }
+
+    public function offsetExists($offset): bool
+    {
+        return isset($this->results[$offset]);
+    }
+
+    public function offsetGet($offset): ?ResultInterface
+    {
+        return $this->results[$offset] ?? null;
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        if (!$value instanceof ResultInterface) {
+            throw new \InvalidArgumentException('Value is not a ResultInterface instance.');
+        }
+
+        $this->results[$offset] = $value;
+    }
+
+    public function offsetUnset($offset): void
+    {
+        unset($this->results[$offset]);
     }
 
     public function count(): int

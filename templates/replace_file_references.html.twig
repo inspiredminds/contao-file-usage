@@ -17,6 +17,7 @@
 
   <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
+    <input type="hidden" name="FORM_SUBMIT" value="replace_images">
     <div class="tl_formbody_edit">
       <fieldset class="tl_box">
         <div class="widget">
@@ -31,9 +32,9 @@
               <input type="checkbox" id="check_all_themes" class="tl_checkbox" onclick="Backend.toggleCheckboxGroup(this,'ctrl_themes')"> <label for="check_all_themes" style="color:#a6a6a6"><em>{{ 'MSC.selectAll'|trans({}, 'contao_default') }}</em></label>
             </div>
             {% spaceless %}
-              {% for u in usages %}
+              {% for index, u in usages %}
                   <div>
-                    <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ u.result.getTable() }}.{{ u.result.getId() }}" id="opt_{{ u.result.getTable() }}.{{ u.result.getId() }}" {% if sourceTable == u.result.getTable() and sourceId == u.result.getId() %} checked{% endif %}>
+                    <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ index }}" id="opt_{{ u.result.getTable() }}.{{ u.result.getId() }}" {% if sourceTable == u.result.getTable() and sourceId == u.result.getId() %} checked{% endif %}>
                     <label for="opt_{{ u.result.getTable() }}.{{ u.result.getId() }}">
                       {% if u.module|default %}
                         {{ ('MOD.' ~ u.module ~ '.0')|trans({}, 'contao_modules') }} »  {{ ('MOD.' ~ u.result.getTable())|trans({}, 'contao_modules') }} » <a href="{{ u.url }}" target="_blank">ID {{ u.result.getId() }}</a>

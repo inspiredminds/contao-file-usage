@@ -18,9 +18,15 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Dbafs;
 use Contao\FilesModel;
 use Contao\FileTree;
+use Contao\StringUtil;
 use Contao\System;
+use Contao\Validator;
+use Doctrine\DBAL\Connection;
 use InspiredMinds\ContaoFileUsage\FileUsageFinderInterface;
+use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
+use InspiredMinds\ContaoFileUsage\Result\ResultInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -31,21 +37,25 @@ use Twig\Environment;
 
 class ReplaceFileReferencesController
 {
+    public const SESSION_KEY = 'fileusage';
+
     private $twig;
     private $framework;
     private $translator;
     private $urlGenerator;
     private $fileUsageFinder;
+    private $db;
     private $csrfTokenManager;
     private $csrfTokenName;
 
-    public function __construct(Environment $twig, ContaoFramework $framework, TranslatorInterface $translator, UrlGeneratorInterface $urlGenerator, FileUsageFinderInterface $fileUsageFinder, ContaoCsrfTokenManager $csrfTokenManager, string $csrfTokenName)
+    public function __construct(Environment $twig, ContaoFramework $framework, TranslatorInterface $translator, UrlGeneratorInterface $urlGenerator, FileUsageFinderInterface $fileUsageFinder, Connection $db, ContaoCsrfTokenManager $csrfTokenManager, string $csrfTokenName)
     {
         $this->twig = $twig;
         $this->framework = $framework;
         $this->translator = $translator;
         $this->urlGenerator = $urlGenerator;
         $this->fileUsageFinder = $fileUsageFinder;
+        $this->db = $db;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfTokenName = $csrfTokenName;
     }
@@ -89,7 +99,32 @@ class ReplaceFileReferencesController
             $backUrl = System::getReferer(false, $sourceTable);
         }
 
-        $usages = $this->fileUsageFinder->find($file->uuid);
+        $session = $request->getSession();
+        $sessionData = $session->get(self::SESSION_KEY) ?? [];
+        $uuid = StringUtil::binToUuid($file->uuid);
+
+        if (isset($sessionData[$uuid])) {
+            $usages = $sessionData[$uuid];
+        } else {
+            $usages = $this->fileUsageFinder->find($uuid);
+            $sessionData[$uuid] = $usages;
+            $session->set(self::SESSION_KEY, $sessionData);
+        }
+
+        if (Request::METHOD_POST === $request->getMethod() && 'replace_images' === $request->request->get('FORM_SUBMIT')) {
+            $fileWidget->validate();
+
+            if (!$fileWidget->hasErrors()) {
+                $replaceElements = $request->request->get('elements');
+
+                foreach ($replaceElements as $index) {
+                    $this->replace($usages[(int) $index], $uuid, $fileWidget->value);
+                }
+
+                return new RedirectResponse($backUrl);
+            }
+        }
+
         $usageResults = [];
 
         foreach ($usages as $usage) {
@@ -163,5 +198,40 @@ class ReplaceFileReferencesController
         }
 
         return null;
+    }
+
+    private function replace(ResultInterface $result, string $oldUuid, string $newUuid): void
+    {
+        /** @var AbstractSchemaManager $schemaManager */
+        $schemaManager = method_exists($this->db, 'createSchemaManager') ? $this->db->createSchemaManager() : $this->db->getSchemaManager();
+
+        if ($result instanceof DatabaseInsertTagResult) {
+            if (Validator::isBinaryUuid($newUuid)) {
+                $newUuid = StringUtil::binToUuid($newUuid);
+            }
+
+            if (Validator::isBinaryUuid($oldUuid)) {
+                $oldUuid = StringUtil::binToUuid($oldUuid);
+            }
+
+            $this->db->executeQuery("
+                UPDATE ".$this->db->quoteIdentifier($result->getTable())." 
+                   SET ".$this->db->quoteIdentifier($result->getField())." = REPLACE(".$this->db->quoteIdentifier($result->getField()).", ?, ?)
+                 WHERE ".$this->db->quoteIdentifier($this->getPrimaryKey($result->getTable(), $schemaManager)." = ?")
+            , ['::'.$oldUuid, '::'.$newUuid, $result->getId()]);
+        }
+
+        dd($result, $newUuid);
+    }
+    
+    private function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): ?string
+    {
+        $table = $schemaManager->listTableDetails($table) ?? null;
+
+        if (null === $table || !$table->hasPrimaryKey()) {
+            return null;
+        }
+
+        return $table->getPrimaryKeyColumns()[0];
     }
 }
