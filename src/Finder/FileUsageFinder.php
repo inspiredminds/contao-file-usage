@@ -20,12 +20,18 @@ use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Console\Style\OutputStyle;
 
 class FileUsageFinder implements FileUsageFinderInterface
 {
     private $framework;
     private $cache;
     private $provider;
+
+    /**
+     * @var OutputStyle
+     */
+    private $style;
 
     /**
      * @param FileUsageProviderInterface[] $provider
@@ -73,11 +79,32 @@ class FileUsageFinder implements FileUsageFinderInterface
 
         $this->framework->initialize();
 
-        foreach (FilesModel::findByType('file') ?? [] as $file) {
+        $files = FilesModel::findByType('file');
+
+        if ($this->style) {
+            $this->style->progressStart($files ? $files->count() : 0);
+        }
+
+        foreach ($files ?? [] as $file) {
             $uuid = StringUtil::binToUuid($file->uuid);
             $collection->addResults($uuid, $this->find($uuid, $useCache));
+
+            if ($this->style) {
+                $this->style->progressAdvance(1);
+            }
+        }
+
+        if ($this->style) {
+            $this->style->progressFinish();
         }
 
         return $collection;
+    }
+
+    public function setOutputStyle(OutputStyle $style): FileUsageFinderInterface
+    {
+        $this->style = $style;
+
+        return $this;
     }
 }

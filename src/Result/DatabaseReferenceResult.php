@@ -17,7 +17,12 @@ class DatabaseReferenceResult implements ResultInterface
     private string $table;
     private string $field;
     private $id;
-    private string $pk;
+    private ?string $pk = null;
+    private ?string $editUrl = null;
+    private ?string $module = null;
+    private ?string $title = null;
+    private ?string $parentTitle = null;
+    private ?string $parentEditUrl = null;
 
     /**
      * @param string      $table The database table
@@ -51,5 +56,65 @@ class DatabaseReferenceResult implements ResultInterface
     public function getPk(): ?string
     {
         return $this->pk;
+    }
+
+    public function setEditUrl(string $editUrl): self
+    {
+        $this->editUrl = $editUrl;
+
+        return $this;
+    }
+
+    public function getEditUrl(): ?string
+    {
+        return $this->editUrl;
+    }
+
+    public function setModule(string $module): self
+    {
+        $this->module = $module;
+
+        return $this;
+    }
+
+    public function getModule(): ?string
+    {
+        return $this->module;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setParentTitle(string $parentTitle): self
+    {
+        $this->parentTitle = $parentTitle;
+
+        return $this;
+    }
+
+    public function getParentTitle(): ?string
+    {
+        return $this->parentTitle;
+    }
+
+    public function setParentEditUrl(string $parentEditUrl): self
+    {
+        $this->parentEditUrl = $parentEditUrl;
+
+        return $this;
+    }
+
+    public function getParentEditUrl(): ?string
+    {
+        return $this->parentEditUrl;
     }
 }

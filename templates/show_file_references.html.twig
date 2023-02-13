@@ -1,0 +1,65 @@
+{% trans_default_domain 'ContaoFileUsage' %}
+{% extends "@ContaoCore/Backend/be_page.html.twig" %}
+
+{% block headline %}
+  <span>{{ 'show_file_usage_headline'|trans }}</span> <span>{{ file.name }}</span>
+{% endblock %}
+
+{% block error %}
+{% endblock %}
+
+{% block main %}
+  <div id="tl_buttons">
+    <a href="{{ back_url }}" class="header_back">{{ 'MSC.goBack'|trans({}, 'contao_default') }}</a>
+  </div>
+
+  <div class="tl_listing_container list_view" id="tl_listing">
+    <table class="tl_listing showColumns">
+      <tbody>
+        <tr>
+          <th class="tl_folder_tlist">{{ 'show_file_usage_module'|trans }}</th>
+          <th class="tl_folder_tlist">{{ 'show_file_usage_parent'|trans }}</th>
+          <th class="tl_folder_tlist">{{ 'show_file_usage_table'|trans }}</th>
+          <th class="tl_folder_tlist">{{ 'show_file_usage_record'|trans }}</th>
+          <th class="tl_folder_tlist tl_right_nowrap"></th>
+        </tr>
+        {% for index, result in results %}
+          <tr class="even click2edit toggle_select hover-row">
+            <td class="tl_file_list">
+              {% if result.getModule()|default %}
+                {{ ('MOD.' ~ result.getModule() ~ '.0')|trans({}, 'contao_modules') }}
+              {% endif %}
+            </td>
+            <td class="tl_file_list">
+              {% if result.getParentTitle()|default %}
+                {% if result.getParentEditUrl()|default %}<a href="{{ result.getParentEditUrl() }}" class="edit" title="{{ 'edit_record'|trans({ '%record%': '"' ~ result.getParentTitle() ~ '"' }) }}">{{ result.getParentTitle() }}</a>{% else %}{{ result.getParentTitle() }}{% endif %}
+              {% endif %}
+            </td>
+            <td class="tl_file_list" title="{{ result.getTable() }}">
+              {{ ('MOD.' ~ result.getTable())|trans({}, 'contao_modules') }}
+            </td>
+            <td class="tl_file_list">
+              {% if result.getTitle()|default %}{{ result.getTitle() }} (ID {{ result.getId() }}){% else %}ID {{ result.getId() }}{% endif %}
+            </td>
+            <td class="tl_file_list tl_right_nowrap">
+              {% if result.getEditUrl()|default %}
+                <a class="edit" href="{{ result.getEditUrl() }}" title="{{ 'edit_record'|trans({ '%record%': result.getTable() ~ '.' ~ result.getId() }) }}"><img src="system/themes/flexible/icons/edit.svg" alt="" width="16" height="16"></a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
+    <input type="hidden" name="FORM_SUBMIT" value="refresh_file_usage">
+    <input type="hidden" name="redirect" value="{{ back_url }}">
+    <div class="tl_formbody_submit">
+      <div class="tl_submit_container">
+        <button class="tl_submit" type="submit">{{ 'refresh_file_usage'|trans }}</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

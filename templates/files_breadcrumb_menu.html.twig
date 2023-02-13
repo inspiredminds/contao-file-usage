@@ -1,0 +1,7 @@
+<nav aria-label="{{ 'MSC.breadcrumbMenu'|trans({}, 'contao_default') }}">
+  <ul id="tl_breadcrumb">
+    {% for item in breadcrumb %}
+      <li>{{ item|raw }}{% if not loop.last %} › {% endif %}</li>
+    {% endfor %}
+  </ul>
+</nav>

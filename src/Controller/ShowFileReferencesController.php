@@ -12,6 +12,77 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Controller;
 
+use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
+use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\FilesModel;
+use Contao\System;
+use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
+use InspiredMinds\ContaoFileUsage\Result\ResultEnhancerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
+
 class ShowFileReferencesController
 {
+    private $twig;
+    private $framework;
+    private $finder;
+    private $enhancer;
+    private $csrfTokenManager;
+    private $csrfTokenName;
+
+    public function __construct(
+        Environment $twig,
+        ContaoFramework $framework,
+        FileUsageFinderInterface $finder,
+        ResultEnhancerInterface $enhancer,
+        ContaoCsrfTokenManager $csrfTokenManager,
+        string $csrfTokenName
+    ) {
+        $this->twig = $twig;
+        $this->framework = $framework;
+        $this->finder = $finder;
+        $this->enhancer = $enhancer;
+        $this->csrfTokenManager = $csrfTokenManager;
+        $this->csrfTokenName = $csrfTokenName;
+    }
+
+    /**
+     * @Route("/contao/show-file-references/{uuid}",
+     *     name=ShowFileReferencesController::class,
+     *     defaults={"_scope": "backend"}
+     * )
+     */
+    public function __invoke(Request $request, string $uuid): Response
+    {
+        $this->framework->initialize();
+
+        if ($redirect = $request->request->get('_target_path', $request->query->get('redirect'))) {
+            $backUrl = base64_decode($redirect, true);
+        } else {
+            $backUrl = System::getReferer(false);
+        }
+
+        $useCache = true;
+
+        if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT')) {
+            $useCache = false;
+        }
+
+        $results = $this->finder->find($uuid, $useCache);
+        $file = FilesModel::findByUuid($uuid);
+
+        foreach ($results as $result) {
+            $this->enhancer->enhance($result);
+        }
+
+        return new Response($this->twig->render('@ContaoFileUsage/show_file_references.html.twig', [
+            'back_url' => $backUrl,
+            'requestToken' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+            'file' => $file,
+            '_target_path' => base64_encode($backUrl),
+            'results' => $results,
+        ]));
+    }
 }

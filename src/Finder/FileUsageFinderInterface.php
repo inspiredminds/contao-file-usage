@@ -14,10 +14,13 @@ namespace InspiredMinds\ContaoFileUsage\Finder;
 
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
+use Symfony\Component\Console\Style\OutputStyle;
 
 interface FileUsageFinderInterface
 {
     public function find(string $uuid, bool $useCache = true): Results;
 
     public function findAll(bool $useCache = true): ResultsCollection;
+
+    public function setOutputStyle(OutputStyle $style): self;
 }
