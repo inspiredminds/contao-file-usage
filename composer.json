@@ -11,12 +11,12 @@
             "role": "Developer"
         }
     ],
-	"support": {
-		"issues": "https://github.com/inspiredminds/contao-file-usage/issues",
-		"source": "https://github.com/inspiredminds/contao-file-usage",
-		"forum": "https://community.contao.org/de"
-	},
-	"funding": [
+    "support": {
+        "issues": "https://github.com/inspiredminds/contao-file-usage/issues",
+        "source": "https://github.com/inspiredminds/contao-file-usage",
+        "forum": "https://community.contao.org/de"
+    },
+    "funding": [
         {
             "type": "github",
             "url": "https://github.com/sponsors/fritzmg"
