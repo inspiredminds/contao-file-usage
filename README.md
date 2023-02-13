@@ -7,17 +7,19 @@ Contao File Usage
 This Contao extension allows you to find and display file references of your files managed by the file manager. For each
 file in the file manager there will be a new operation (<img src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/public/search.svg" alt="search"> or <img src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/public/link.svg" alt="link">).
 
-<img src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/filemanager.png" alt="File manager">
+<img width="480" src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/filemanager.png" alt="File manager">
 
 This operation will then show you any references of this file that this extension finds in the database, with links to
 the original data record, if available.
 
-<img src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/references.png" alt="References">
+<img width="480" src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/references.png" alt="References">
+
+The search results are cached for 24 hours. You can force to fetch new search results with the _Refresh_ button.
 
 You can also use the "Unused files" global operation in order to find any database assisted files that aren't referenced
 anywhere (at least according to the search results).
 
-<img src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/unused.png" alt="Unused files">
+<img width="480" src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/unused.png" alt="Unused files">
 
 ## Custom Providers
 
@@ -59,3 +61,20 @@ do by default).
 
 This extension also replaces Contao's `fileTree` widget with its own implementation, showing an additional button with 
 which you can replace the file references found for this file with a new reference.
+
+<img width="480" src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/gallery.png" alt="Gallery">
+
+<img width="480" src="https://raw.githubusercontent.com/inspiredminds/contao-file-usage/master/replac.png" alt="Replace references">
+
+## Cronjob
+
+As previously mentioned the search results are cached for 24 hours. In order for the cache to always be up to date for
+at least 24 hours this extensions implements a daily cronjob. However, the cronjob is only run on the command line
+interface, so make sure that you have set up [Contao's cronjob](https://docs.contao.org/dev/framework/cron/) 
+accordingly.
+
+## Command
+
+You can also warm up the search result cache from the command line, using the `contao_file_usage:warmup` command. This 
+command can also optionally take a UUID for an argument, which will refresh the cache for only that file. You can also 
+use the `--skip-cached` option to only refresh file items that do not exist in the cache currently.
