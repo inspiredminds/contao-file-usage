@@ -15,10 +15,12 @@ namespace InspiredMinds\ContaoFileUsage\DataContainer;
 use Contao\DC_Folder;
 use Contao\FilesModel;
 use Contao\Image;
+use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FolderDataContainer extends DC_Folder
 {
@@ -50,6 +52,10 @@ class FolderDataContainer extends DC_Folder
             $arrFound = $unused;
 
             if (!self::$breadcrumbSet) {
+                /** @var TranslatorInterface $translator */
+                $translator = $container->get('translator');
+                Message::addNew($translator->trans('file_usage_warning', [], 'ContaoFileUsage'));
+
                 $links = [
                     Image::getHtml('filemounts.svg').' <a href="'.self::addToUrl('unused=').'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['selectAllNodes']).'">'.$GLOBALS['TL_LANG']['MSC']['filterAll'].'</a>',
                     Image::getHtml('folderO.svg').' '.($GLOBALS['TL_LANG']['tl_files']['unused'] ?? 'unused'),

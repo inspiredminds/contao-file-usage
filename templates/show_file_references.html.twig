@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block main %}
+  <div class="tl_message"><p class="tl_new">{{ 'file_usage_warning'|trans|raw }}</p></div>
+
   <div id="tl_buttons">
     <a href="{{ back_url }}" class="header_back">{{ 'MSC.goBack'|trans({}, 'contao_default') }}</a>
   </div>

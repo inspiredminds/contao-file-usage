@@ -3,7 +3,8 @@ replace_image_headline: Bild ersetzen
 replace_image_send: Bild ersetzen
 replace_image_references: Referenzen
 edit_record: Eintrag %id% editieren
-replace_image_warning: Diese Funktion findet unter Umständen nicht alle Referenzen dieser Datei. Falls sichergestellt werden muss, dass ein Bild komplett ersetzt ist, dann ist die einzige Möglichkeit das Bild direkt in der <a style="text-decoration:underline" href="%fileManagerUrl%">Dateiverwaltung</a> zu ersetzen, indem man ein Bild mit dem selben Namen in den selben Ordner <a style="text-decoration:underline" href="%uploadUrl%">hochlädt</a>.
+replace_image_warning: <strong>Warnung:</strong diese Funktion findet unter Umständen nicht alle Referenzen dieser Datei. Falls sichergestellt werden muss, dass ein Bild komplett ersetzt ist, dann ist die einzige Möglichkeit das Bild direkt in der <a style="text-decoration:underline" href="%fileManagerUrl%">Dateiverwaltung</a> zu ersetzen, indem man ein Bild mit dem selben Namen in den selben Ordner <a style="text-decoration:underline" href="%uploadUrl%">hochlädt</a>.
+file_usage_warning: <strong>Warnung:</strong> findet unter Umständen nicht alle Referenzen einer Datei. Vorsicht bei der Anwendung.
 show_file_usage_headline: Dateinutzung
 refresh_file_usage: Aktualisieren
 button_show_file_usage: Zeige Dateinutzung für "%filename%"
