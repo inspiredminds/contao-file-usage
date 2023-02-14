@@ -138,6 +138,10 @@ class FileTreeProvider implements FileUsageProviderInterface
 
         $file = FilesModel::findByUuid($uuid);
 
+        if (!$file->pid) {
+            return new Results($uuid);
+        }
+
         return $this->searchForMultiple($table, $field, StringUtil::binToUuid($file->pid), $pk);
     }
 }
