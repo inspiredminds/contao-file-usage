@@ -131,6 +131,11 @@ class FileTreeProvider implements FileUsageProviderInterface
 
     private function searchForFolders(string $table, string $field, string $uuid, string $pk = null): Results
     {
+        // Ignore some fields
+        if (\in_array($table, ['tl_user', 'tl_user_group'], true) && 'filemounts' === $field) {
+            return new Results($uuid);
+        }
+
         $file = FilesModel::findByUuid($uuid);
 
         return $this->searchForMultiple($table, $field, StringUtil::binToUuid($file->pid), $pk);

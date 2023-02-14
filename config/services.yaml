@@ -54,7 +54,15 @@ services:
             - '@request_stack'
         tags: ['kernel.event_listener']
 
-    contao_file_usage.event_listener.data_container_show.show_references_button:
+    contao_file_usage.event_listener.data_container.files_permissions:
+        class: InspiredMinds\ContaoFileUsage\EventListener\DataContainer\FilesPermissionsCallback
+        arguments:
+            - '@security.helper'
+            - '@request_stack'
+        tags:
+            - { name: contao.callback, table: tl_files, target: config.onload }
+
+    contao_file_usage.event_listener.data_container.show_references_button:
         class: InspiredMinds\ContaoFileUsage\EventListener\DataContainer\ShowReferencesButtonCallback
         arguments:
             - '@router'

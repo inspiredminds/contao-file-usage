@@ -14,3 +14,4 @@ show_file_usage_module: Modul
 show_file_usage_parent: Elternelement
 show_file_usage_table: Tabelle
 show_file_usage_record: Eintrag
+unused_not_found: Keine unbenutzten Dateien gefunden.

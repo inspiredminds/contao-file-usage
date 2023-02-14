@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\DataContainer;
 
+use Contao\Controller;
 use Contao\DC_Folder;
 use Contao\FilesModel;
 use Contao\Image;
@@ -54,14 +55,20 @@ class FolderDataContainer extends DC_Folder
             if (!self::$breadcrumbSet) {
                 /** @var TranslatorInterface $translator */
                 $translator = $container->get('translator');
-                Message::addNew($translator->trans('file_usage_warning', [], 'ContaoFileUsage'));
 
-                $links = [
-                    Image::getHtml('filemounts.svg').' <a href="'.self::addToUrl('unused=').'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['selectAllNodes']).'">'.$GLOBALS['TL_LANG']['MSC']['filterAll'].'</a>',
-                    Image::getHtml('folderO.svg').' '.($GLOBALS['TL_LANG']['tl_files']['unused'] ?? 'unused'),
-                ];
+                if (true || empty($arrFound)) {
+                    Message::addInfo($translator->trans('unused_not_found', [], 'ContaoFileUsage'));
+                    Controller::redirect(self::addToUrl('unused='));
+                } else {
+                    Message::addNew($translator->trans('file_usage_warning', [], 'ContaoFileUsage'));
 
-                $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] = ($GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] ?? '').$container->get('twig')->render('@ContaoFileUsage/files_breadcrumb_menu.html.twig', ['breadcrumb' => $links]);
+                    $links = [
+                        Image::getHtml('filemounts.svg').' <a href="'.self::addToUrl('unused=').'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['selectAllNodes']).'">'.$GLOBALS['TL_LANG']['MSC']['filterAll'].'</a>',
+                        Image::getHtml('folderO.svg').' '.($GLOBALS['TL_LANG']['tl_files']['unused'] ?? 'unused'),
+                    ];
+
+                    $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] = ($GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] ?? '').$container->get('twig')->render('@ContaoFileUsage/files_breadcrumb_menu.html.twig', ['breadcrumb' => $links]);
+                }
 
                 self::$breadcrumbSet = true;
             }
