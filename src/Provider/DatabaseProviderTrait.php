@@ -24,6 +24,6 @@ trait DatabaseProviderTrait
             return null;
         }
 
-        return $table->getPrimaryKeyColumns()[0];
+        return reset($table->getPrimaryKeyColumns());
     }
 }
