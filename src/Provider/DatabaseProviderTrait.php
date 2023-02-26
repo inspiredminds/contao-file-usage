@@ -30,6 +30,12 @@ trait DatabaseProviderTrait
             return null;
         }
 
-        return $primaryKey->getName();
+        $columns = $primaryKey->getColumns();
+
+        if (empty($columns)) {
+            return null;
+        }
+
+        return reset($columns);
     }
 }
