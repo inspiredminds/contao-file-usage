@@ -24,12 +24,12 @@ trait DatabaseProviderTrait
             return null;
         }
 
-        $primaryKeyColumns = $table->getPrimaryKeyColumns();
+        $primaryKey = $table->getPrimaryKey();
 
-        if (empty($primaryKeyColumns)) {
+        if (null === $primaryKey) {
             return null;
         }
 
-        return reset($primaryKeyColumns)->getName();
+        return $primaryKey->getName();
     }
 }
