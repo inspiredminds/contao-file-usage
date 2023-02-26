@@ -56,7 +56,7 @@ class FolderDataContainer extends DC_Folder
                 /** @var TranslatorInterface $translator */
                 $translator = $container->get('translator');
 
-                if (true || empty($arrFound)) {
+                if (empty($arrFound)) {
                     Message::addInfo($translator->trans('unused_not_found', [], 'ContaoFileUsage'));
                     Controller::redirect(self::addToUrl('unused='));
                 } else {
