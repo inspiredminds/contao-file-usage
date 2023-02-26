@@ -24,6 +24,12 @@ trait DatabaseProviderTrait
             return null;
         }
 
-        return reset($table->getPrimaryKeyColumns());
+        $primaryKeyColumns = $table->getPrimaryKeyColumns();
+
+        if (empty($primaryKeyColumns)) {
+            return null;
+        }
+
+        return reset($primaryKeyColumns)->getName();
     }
 }
