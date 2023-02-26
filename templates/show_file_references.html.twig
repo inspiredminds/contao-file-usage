@@ -30,11 +30,15 @@
             <td class="tl_file_list">
               {% if result.getModule()|default %}
                 {{ ('MOD.' ~ result.getModule() ~ '.0')|trans({}, 'contao_modules') }}
+              {% else %}
+                -
               {% endif %}
             </td>
             <td class="tl_file_list">
               {% if result.getParentTitle()|default %}
                 {% if result.getParentEditUrl()|default %}<a href="{{ result.getParentEditUrl() }}" class="edit" title="{{ 'edit_record'|trans({ '%record%': '"' ~ result.getParentTitle() ~ '"' }) }}">{{ result.getParentTitle() }}</a>{% else %}{{ result.getParentTitle() }}{% endif %}
+              {% else %}
+                -
               {% endif %}
             </td>
             <td class="tl_file_list" title="{{ result.getTable() }}">
