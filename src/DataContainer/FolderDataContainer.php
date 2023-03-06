@@ -20,10 +20,19 @@ use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
+use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class FolderDataContainer extends DC_Folder
+if (class_exists(FolderDriver::class)) {
+    class FolderParent extends FolderDriver {
+    }
+} else {
+    class FolderParent extends DC_Folder {
+    }
+}
+
+class FolderDataContainer extends FolderParent
 {
     protected static $breadcrumbSet = false;
 
