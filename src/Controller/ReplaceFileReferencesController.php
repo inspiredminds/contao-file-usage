@@ -74,12 +74,12 @@ class ReplaceFileReferencesController
     }
 
     /**
-     * @Route("/contao/replace-file-references/{fileUuid}/{sourceTable}/{sourceId}",
+     * @Route("/contao/replace-file-references/{fileUuid}/{sourceTable}",
      *     name=ReplaceFileReferencesController::class,
      *     defaults={"_scope": "backend"}
      * )
      */
-    public function __invoke(Request $request, string $fileUuid, string $sourceTable, string $sourceId): Response
+    public function __invoke(Request $request, string $fileUuid, string $sourceTable): Response
     {
         $this->framework->initialize();
 
@@ -172,7 +172,7 @@ class ReplaceFileReferencesController
             'back_url' => $backUrl,
             'results' => $results,
             'sourceTable' => $sourceTable,
-            'sourceId' => $sourceId,
+            'sourceId' => $request->get('sourceId'),
             'requestToken' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
             'fileWidget' => $fileWidget->parse(),
             'fileManagerUrl' => $fileManagerUrl,
