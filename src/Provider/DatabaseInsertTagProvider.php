@@ -57,7 +57,7 @@ class DatabaseInsertTagProvider implements FileUsageProviderInterface
                 $occurrences = $this->db->fetchAllAssociative('
                     SELECT * FROM '.$this->db->quoteIdentifier($tableName).'
                      WHERE '.$this->db->quoteIdentifier($field).' '.$regex.' ?',
-                    ['{{(file|picture|figure)::'.$uuid.'((\||\?)[^}]+)?}}']
+                    ['\{\{(file|picture|figure)::'.$uuid.'((\||\?)[^}]+)?\}\}']
                 );
 
                 foreach ($occurrences as $occurrence) {
