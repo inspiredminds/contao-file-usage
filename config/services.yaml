@@ -4,7 +4,12 @@ services:
 
     contao_file_usage.file_usage_cache:
         class: Symfony\Component\Cache\Adapter\FilesystemAdapter
-        arguments: ['fileusage', 86400, '%kernel.cache_dir%']
+        public: true
+        arguments: ['fileusage', 0, '%kernel.cache_dir%']
+
+    contao_file_usage.query_cache:
+        class: Doctrine\DBAL\Cache\QueryCacheProfile
+        arguments: [0, 'fileusage']
 
     contao_file_usage.finder.file_usage:
         class: InspiredMinds\ContaoFileUsage\Finder\FileUsageFinder
@@ -18,6 +23,7 @@ services:
         class: InspiredMinds\ContaoFileUsage\Console\FileUsageWarmupCommand
         arguments:
             - '@contao_file_usage.finder.file_usage'
+            - '@?debug.stopwatch'
 
     InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController:
         arguments:
@@ -37,6 +43,7 @@ services:
         arguments:
             - '@twig'
             - '@contao.framework'
+            - '@contao_file_usage.file_usage_cache'
             - '@contao_file_usage.finder.file_usage'
             - '@contao_file_usage.result.result_enhancer'
             - '@contao.csrf.token_manager'
@@ -77,17 +84,24 @@ services:
         arguments: 
             - '@contao_file_usage.file_usage_cache'
 
-    contao_file_usage.provider.database_insert_tag:
-        class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
+    contao_file_usage.provider.database:
+        class: InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider
         arguments:
-            - '@database_connection'
-
-    contao_file_usage.provider.file_tree:
-        class: InspiredMinds\ContaoFileUsage\Provider\FileTreeProvider
-        arguments:
-            - '@contao.framework'
             - '@database_connection'
             - '@contao.resource_finder'
+            - '@contao.framework'
+
+    #contao_file_usage.provider.database_insert_tag:
+    #    class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
+    #    arguments:
+    #        - '@database_connection'
+
+    #contao_file_usage.provider.file_tree:
+    #    class: InspiredMinds\ContaoFileUsage\Provider\FileTreeProvider
+    #    arguments:
+    #        - '@contao.framework'
+    #        - '@database_connection'
+    #        - '@contao.resource_finder'
 
     contao_file_usage.replace.file_reference:
         class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer

@@ -18,6 +18,8 @@ use Contao\FilesModel;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use InspiredMinds\ContaoFileUsage\Result\ResultEnhancerInterface;
+use InspiredMinds\ContaoFileUsage\Result\Results;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,6 +29,7 @@ class ShowFileReferencesController
 {
     private $twig;
     private $framework;
+    private $cache;
     private $finder;
     private $enhancer;
     private $csrfTokenManager;
@@ -35,6 +38,7 @@ class ShowFileReferencesController
     public function __construct(
         Environment $twig,
         ContaoFramework $framework,
+        AdapterInterface $cache,
         FileUsageFinderInterface $finder,
         ResultEnhancerInterface $enhancer,
         ContaoCsrfTokenManager $csrfTokenManager,
@@ -42,6 +46,7 @@ class ShowFileReferencesController
     ) {
         $this->twig = $twig;
         $this->framework = $framework;
+        $this->cache = $cache;
         $this->finder = $finder;
         $this->enhancer = $enhancer;
         $this->csrfTokenManager = $csrfTokenManager;
@@ -64,13 +69,17 @@ class ShowFileReferencesController
             $backUrl = System::getReferer(false);
         }
 
-        $useCache = true;
-
-        if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT')) {
-            $useCache = false;
+        if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT') || !$this->cache->getItems()) {
+            $this->finder->find();
         }
 
-        $results = $this->finder->find($uuid, $useCache);
+        $results = new Results($uuid);
+        $item = $this->cache->getItem($uuid);
+
+        if ($item->isHit()) {
+            $results = $item->get();
+        }
+
         $file = FilesModel::findByUuid($uuid);
 
         foreach ($results as $result) {

@@ -20,15 +20,19 @@ use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
+use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 if (class_exists(FolderDriver::class)) {
-    class FolderParent extends FolderDriver {
+    class FolderParent extends FolderDriver
+    {
     }
 } else {
-    class FolderParent extends DC_Folder {
+    class FolderParent extends DC_Folder
+    {
     }
 }
 
@@ -43,14 +47,28 @@ class FolderDataContainer extends FolderParent
         $request = $container->get('request_stack')->getCurrentRequest();
 
         if ($request->query->get('unused')) {
-            /** @var FileUsageFinderInterface $finder */
-            $finder = $container->get('contao_file_usage.finder.file_usage');
-            $references = $finder->findAll();
+            /** @var AdapterInterface $cache */
+            $cache = $container->get('contao_file_usage.file_usage_cache');
+
+            if (!$cache->getItems() || (!self::$breadcrumbSet && $request->query->get('refresh'))) {
+                /** @var FileUsageFinderInterface $finder */
+                $finder = $container->get('contao_file_usage.finder.file_usage');
+                $finder->find();
+            }
+
             $unused = [];
 
             foreach (FilesModel::findByType('file') ?? [] as $file) {
                 $uuid = StringUtil::binToUuid($file->uuid);
-                if (!isset($references[$uuid])) {
+
+                $item = $cache->getItem($uuid);
+
+                if ($item->isHit()) {
+                    /** @var Results $results */
+                    $results = $item->get();
+                }
+
+                if (!$item->isHit() || !$results->hasResults()) {
                     $unused[] = $file->path;
                 }
             }
@@ -67,17 +85,20 @@ class FolderDataContainer extends FolderParent
 
                 if (empty($arrFound)) {
                     Message::addInfo($translator->trans('unused_not_found', [], 'ContaoFileUsage'));
-                    Controller::redirect(self::addToUrl('unused='));
+                    Controller::redirect(self::addToUrl('unused=&refresh='));
                 } else {
                     Message::addNew($translator->trans('file_usage_warning', [], 'ContaoFileUsage'));
 
                     $links = [
-                        Image::getHtml('filemounts.svg').' <a href="'.self::addToUrl('unused=').'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['selectAllNodes']).'">'.$GLOBALS['TL_LANG']['MSC']['filterAll'].'</a>',
+                        Image::getHtml('filemounts.svg').' <a href="'.self::addToUrl('unused=&refresh=').'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['selectAllNodes']).'">'.$GLOBALS['TL_LANG']['MSC']['filterAll'].'</a>',
                         Image::getHtml('folderO.svg').' '.($GLOBALS['TL_LANG']['tl_files']['unused'] ?? 'unused'),
                     ];
 
                     $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] = ($GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'] ?? '').$container->get('twig')->render('@ContaoFileUsage/files_breadcrumb_menu.html.twig', ['breadcrumb' => $links]);
                 }
+
+                $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['href'] .= '&refresh=1';
+                $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['icon'] = 'bundles/contaofileusage/repeat.svg';
 
                 self::$breadcrumbSet = true;
             }

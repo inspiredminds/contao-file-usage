@@ -19,7 +19,6 @@
 
   <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
-    <input type="hidden" name="FORM_SUBMIT" value="replace_images">
     <input type="hidden" name="_target_path" value="{{ back_url }}">
     <div class="tl_formbody_edit">
       <fieldset class="tl_box">
@@ -54,7 +53,8 @@
     </div>
     <div class="tl_formbody_submit">
       <div class="tl_submit_container">
-        <button class="tl_submit" type="submit">{{ 'replace_image_send'|trans }}</button>
+        <button class="tl_submit" type="submit" name="refresh_file_usage">{{ 'refresh_file_usage'|trans }}</button>
+        <button class="tl_submit" type="submit" name="replace_images">{{ 'replace_image_send'|trans }}</button>
       </div>
     </div>
   </form>

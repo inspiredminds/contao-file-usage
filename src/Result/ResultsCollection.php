@@ -12,21 +12,15 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-use ArrayAccess;
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
-
 /**
  * Stores Results per UUID.
  */
-class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
+class ResultsCollection implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     /**
      * @var array<string, Results>
      */
-    private $results = [];
+    private array $results = [];
 
     public function mergeCollection(self $collection): self
     {
@@ -55,12 +49,23 @@ class ResultsCollection implements IteratorAggregate, ArrayAccess, Countable
         return $this->count() > 0;
     }
 
-    /**
-     * @return Traversable<string, Results>
-     */
-    public function getIterator(): Traversable
+    public function addResult(string $uuid, ResultInterface $result): self
     {
-        return new ArrayIterator($this->results);
+        if (!isset($this->results[$uuid])) {
+            $this->results[$uuid] = new Results($uuid);
+        }
+
+        $this->results[$uuid]->addResult($result);
+
+        return $this;
+    }
+
+    /**
+     * @return \Traversable<string, Results>
+     */
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->results);
     }
 
     public function offsetExists($offset): bool

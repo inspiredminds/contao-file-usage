@@ -40,6 +40,6 @@ class BuildCacheCronJob
         }
 
         // Build file usage cache
-        $this->fileUsageFinder->findAll(false);
+        $this->fileUsageFinder->find();
     }
 }

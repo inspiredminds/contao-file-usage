@@ -24,6 +24,7 @@ use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacerInterface;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultEnhancerInterface;
+use InspiredMinds\ContaoFileUsage\Result\Results;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,7 +116,7 @@ class ReplaceFileReferencesController
         $session = $request->getSession();
         $uuid = StringUtil::binToUuid($file->uuid);
 
-        if (Request::METHOD_POST === $request->getMethod() && 'replace_images' === $request->request->get('FORM_SUBMIT')) {
+        if (Request::METHOD_POST === $request->getMethod() && $request->request->has('replace_images')) {
             $fileWidget->validate();
 
             if (!$fileWidget->hasErrors()) {
@@ -134,7 +135,17 @@ class ReplaceFileReferencesController
             }
         }
 
-        $results = $this->fileUsageFinder->find($uuid, false);
+        if ($request->request->has('refresh_file_usage') || !$this->cache->getItems()) {
+            $this->fileUsageFinder->find();
+        }
+
+        $results = new Results($uuid);
+        $item = $this->cache->getItem($uuid);
+
+        if ($item->isHit()) {
+            $results = $item->get();
+        }
+
         $session->set(self::SESSION_KEY, $results);
 
         foreach ($results as $result) {

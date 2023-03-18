@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Provider;
 
-use InspiredMinds\ContaoFileUsage\Result\Results;
+use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 interface FileUsageProviderInterface
 {
-    public function find(string $uuid): Results;
+    public function find(): ResultsCollection;
 }

@@ -29,7 +29,7 @@ class ResultEnhancer implements ResultEnhancerInterface
     private $csrfTokenManager;
     private $csrfTokenName;
 
-    private static $moduleKeyCache = [];
+    private static array $moduleKeyCache = [];
 
     public function __construct(
         ContaoFramework $framework,

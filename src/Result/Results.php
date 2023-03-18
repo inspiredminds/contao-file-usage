@@ -12,20 +12,14 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Result;
 
-use ArrayAccess;
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
-
-class Results implements IteratorAggregate, ArrayAccess, Countable
+class Results implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private string $uuid;
 
     /**
      * @var list<ResultInterface>
      */
-    private $results = [];
+    private array $results = [];
 
     public function __construct(string $uuid)
     {
@@ -80,11 +74,11 @@ class Results implements IteratorAggregate, ArrayAccess, Countable
     }
 
     /**
-     * @return Traversable<ResultInterface>
+     * @return \Traversable<ResultInterface>
      */
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
-        return new ArrayIterator($this->results);
+        return new \ArrayIterator($this->results);
     }
 
     public function offsetExists($offset): bool
