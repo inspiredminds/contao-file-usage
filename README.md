@@ -54,20 +54,20 @@ by implementing the `FileUsageProviderInterface`.
 // src/FileUsage/FoobarProvider.php
 use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseReferenceResult;
-use InspiredMinds\ContaoFileUsage\Result\Results;
+use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 class FoobarProvider implements FileUsageProviderInterface
 {
-    public function find(string $uuid): Results
+    public function find(): ResultsCollection
     {
-        $results = new Results($uuid);
+        $collection = new ResultsCollection();
 
         // Additional database search
         // …
 
-        $results->addResult(new DatabaseReferenceResult($table, $field, $id));
+        $collection->addResult(new DatabaseReferenceResult($table, $field, $id));
 
-        return $results;
+        return $collection;
     }
 }
 ```
