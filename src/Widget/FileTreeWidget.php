@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Widget;
 
+use Contao\BackendUser;
 use Contao\File;
 use Contao\FilesModel;
 use Contao\FileTree;
 use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * Replacement for Contao's own fileTree widget to include an image replacement button.
@@ -26,17 +28,24 @@ class FileTreeWidget extends FileTree
 {
     protected function getPreviewImage(File $file, $info, $class = 'gimage')
     {
-        $GLOBALS['TL_CSS'][] = 'bundles/contaofileusage/backend.css';
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/contaofileusage/backend.js';
-
         $preview = parent::getPreviewImage($file, $info, $class);
+        $container = System::getContainer();
+        /** @var Security $security */
+        $security = $container->get('security.helper');
+        $user = $security->getUser();
+
+        if (!$user instanceof BackendUser || !$user->hasAccess('replacereferences', 'fop')) {
+            return $preview;
+        }
+
         $model = FilesModel::findByPath($file->path);
 
         if (null === $model) {
             return $preview;
         }
 
-        $container = System::getContainer();
+        $GLOBALS['TL_CSS'][] = 'bundles/contaofileusage/backend.css';
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/contaofileusage/backend.js';
 
         /** @var UrlGeneratorInterface $router */
         $router = $container->get('router');

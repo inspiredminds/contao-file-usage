@@ -15,7 +15,6 @@ services:
         class: InspiredMinds\ContaoFileUsage\Finder\FileUsageFinder
         public: true
         arguments:
-            - '@contao.framework'
             - '@contao_file_usage.file_usage_cache'
             - !tagged_iterator { tag: contao_file_usage.provider }
 
@@ -35,6 +34,7 @@ services:
             - '@contao_file_usage.replace.file_reference'
             - '@contao_file_usage.file_usage_cache'
             - '@contao_file_usage.result.result_enhancer'
+            - '@security.helper'
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
         tags: ['controller.service_arguments']
@@ -46,6 +46,7 @@ services:
             - '@contao_file_usage.file_usage_cache'
             - '@contao_file_usage.finder.file_usage'
             - '@contao_file_usage.result.result_enhancer'
+            - '@security.helper'
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
         tags: ['controller.service_arguments']
@@ -75,6 +76,7 @@ services:
             - '@router'
             - '@contao_file_usage.file_usage_cache'
             - '@translator'
+            - '@security.helper'
         tags: 
             - { name: contao.callback, table: tl_files, target: list.operations.fileusage.button }
 
@@ -90,18 +92,6 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
             - '@contao.framework'
-
-    #contao_file_usage.provider.database_insert_tag:
-    #    class: InspiredMinds\ContaoFileUsage\Provider\DatabaseInsertTagProvider
-    #    arguments:
-    #        - '@database_connection'
-
-    #contao_file_usage.provider.file_tree:
-    #    class: InspiredMinds\ContaoFileUsage\Provider\FileTreeProvider
-    #    arguments:
-    #        - '@contao.framework'
-    #        - '@database_connection'
-    #        - '@contao.resource_finder'
 
     contao_file_usage.replace.file_reference:
         class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer

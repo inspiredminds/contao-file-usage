@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Controller;
 
+use Contao\BackendUser;
 use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
+use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
 use Contao\System;
@@ -23,6 +25,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 use Twig\Environment;
 
 class ShowFileReferencesController
@@ -32,6 +35,7 @@ class ShowFileReferencesController
     private $cache;
     private $finder;
     private $enhancer;
+    private $security;
     private $csrfTokenManager;
     private $csrfTokenName;
 
@@ -41,6 +45,7 @@ class ShowFileReferencesController
         AdapterInterface $cache,
         FileUsageFinderInterface $finder,
         ResultEnhancerInterface $enhancer,
+        Security $security,
         ContaoCsrfTokenManager $csrfTokenManager,
         string $csrfTokenName
     ) {
@@ -49,6 +54,7 @@ class ShowFileReferencesController
         $this->cache = $cache;
         $this->finder = $finder;
         $this->enhancer = $enhancer;
+        $this->security = $security;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfTokenName = $csrfTokenName;
     }
@@ -61,6 +67,12 @@ class ShowFileReferencesController
      */
     public function __invoke(Request $request, string $uuid): Response
     {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
+            throw new AccessDeniedException('No permission to show file references.');
+        }
+
         $this->framework->initialize();
 
         if ($redirect = $request->request->get('_target_path', $request->query->get('redirect'))) {
@@ -69,7 +81,7 @@ class ShowFileReferencesController
             $backUrl = System::getReferer(false);
         }
 
-        if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT') || !$this->cache->getItems()) {
+        if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT')) {
             $this->finder->find();
         }
 

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\EventListener\DataContainer;
 
+use Contao\BackendUser;
 use Contao\FilesModel;
 use Contao\Image;
 use Contao\StringUtil;
@@ -19,6 +20,7 @@ use InspiredMinds\ContaoFileUsage\Controller\ShowFileReferencesController;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ShowReferencesButtonCallback
@@ -26,16 +28,24 @@ class ShowReferencesButtonCallback
     private $router;
     private $cache;
     private $translator;
+    private $security;
 
-    public function __construct(UrlGeneratorInterface $router, AdapterInterface $cache, TranslatorInterface $translator)
+    public function __construct(UrlGeneratorInterface $router, AdapterInterface $cache, TranslatorInterface $translator, Security $security)
     {
         $this->router = $router;
         $this->cache = $cache;
         $this->translator = $translator;
+        $this->security = $security;
     }
 
     public function __invoke(array $record): string
     {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
+            return '';
+        }
+
         $file = FilesModel::findByPath(urldecode($record['id']));
 
         if (null === $file || 'file' !== $file->type) {

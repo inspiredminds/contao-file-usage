@@ -15,9 +15,7 @@ namespace InspiredMinds\ContaoFileUsage\Console;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use Khill\Duration\Duration;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -26,12 +24,12 @@ class FileUsageWarmupCommand extends Command
 {
     protected static $defaultName = 'contao_file_usage:warmup';
 
-    private $fileUsageFinder;
+    private $finder;
     private $stopwatch;
 
-    public function __construct(FileUsageFinderInterface $fileUsageFinder, ?Stopwatch $stopwatch)
+    public function __construct(FileUsageFinderInterface $finder, ?Stopwatch $stopwatch)
     {
-        $this->fileUsageFinder = $fileUsageFinder;
+        $this->finder = $finder;
         $this->stopwatch = $stopwatch;
 
         parent::__construct();
@@ -53,7 +51,7 @@ class FileUsageWarmupCommand extends Command
             $this->stopwatch->start('fileusage');
         }
 
-        $this->fileUsageFinder->find();
+        $this->finder->find();
 
         if ($this->stopwatch) {
             $event = $this->stopwatch->stop('fileusage');

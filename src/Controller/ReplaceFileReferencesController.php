@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Controller;
 
+use Contao\BackendUser;
 use Contao\Config;
 use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
+use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Dbafs;
 use Contao\FilesModel;
@@ -32,6 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -43,10 +46,11 @@ class ReplaceFileReferencesController
     private $framework;
     private $translator;
     private $urlGenerator;
-    private $fileUsageFinder;
+    private $finder;
     private $replacer;
     private $cache;
     private $enhancer;
+    private $security;
     private $csrfTokenManager;
     private $csrfTokenName;
 
@@ -55,10 +59,11 @@ class ReplaceFileReferencesController
         ContaoFramework $framework,
         TranslatorInterface $translator,
         UrlGeneratorInterface $urlGenerator,
-        FileUsageFinderInterface $fileUsageFinder,
+        FileUsageFinderInterface $finder,
         FileReferenceReplacerInterface $replacer,
         AdapterInterface $cache,
         ResultEnhancerInterface $enhancer,
+        Security $security,
         ContaoCsrfTokenManager $csrfTokenManager,
         string $csrfTokenName
     ) {
@@ -66,10 +71,11 @@ class ReplaceFileReferencesController
         $this->framework = $framework;
         $this->translator = $translator;
         $this->urlGenerator = $urlGenerator;
-        $this->fileUsageFinder = $fileUsageFinder;
+        $this->finder = $finder;
         $this->replacer = $replacer;
         $this->cache = $cache;
         $this->enhancer = $enhancer;
+        $this->security = $security;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfTokenName = $csrfTokenName;
     }
@@ -82,6 +88,12 @@ class ReplaceFileReferencesController
      */
     public function __invoke(Request $request, string $fileUuid, string $sourceTable): Response
     {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
+            throw new AccessDeniedException('No permission to replace file references.');
+        }
+
         $this->framework->initialize();
 
         $file = FilesModel::findByUuid($fileUuid);
@@ -135,8 +147,8 @@ class ReplaceFileReferencesController
             }
         }
 
-        if ($request->request->has('refresh_file_usage') || !$this->cache->getItems()) {
-            $this->fileUsageFinder->find();
+        if ($request->request->has('refresh_file_usage')) {
+            $this->finder->find();
         }
 
         $results = new Results($uuid);

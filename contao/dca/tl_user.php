@@ -11,3 +11,5 @@ declare(strict_types=1);
  */
 
 $GLOBALS['TL_DCA']['tl_user']['fields']['fop']['options'][] = 'unused';
+$GLOBALS['TL_DCA']['tl_user']['fields']['fop']['options'][] = 'showreferences';
+$GLOBALS['TL_DCA']['tl_user']['fields']['fop']['options'][] = 'replacereferences';

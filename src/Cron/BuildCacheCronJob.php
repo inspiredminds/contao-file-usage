@@ -22,11 +22,11 @@ use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
  */
 class BuildCacheCronJob
 {
-    private $fileUsageFinder;
+    private $finder;
 
-    public function __construct(FileUsageFinderInterface $fileUsageFinder)
+    public function __construct(FileUsageFinderInterface $finder)
     {
-        $this->fileUsageFinder = $fileUsageFinder;
+        $this->finder = $finder;
     }
 
     public function __invoke(string $scope): void
@@ -40,6 +40,6 @@ class BuildCacheCronJob
         }
 
         // Build file usage cache
-        $this->fileUsageFinder->find();
+        $this->finder->find();
     }
 }

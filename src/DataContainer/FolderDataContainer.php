@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\DataContainer;
 
+use Contao\BackendUser;
 use Contao\Controller;
 use Contao\DC_Folder;
 use Contao\FilesModel;
@@ -43,6 +44,14 @@ class FolderDataContainer extends FolderParent
     protected function generateTree($path, $intMargin, $mount = false, $blnProtected = true, $arrClipboard = null, $arrFound = [])
     {
         $container = System::getContainer();
+        /** @var Security $security */
+        $security = $container->get('security.helper');
+        $user = $security->getUser();
+
+        if (!$user instanceof BackendUser || !$user->hasAccess('unused', 'fop')) {
+            return parent::generateTree($path, $intMargin, $mount, $blnProtected, $arrClipboard, $arrFound);
+        }
+
         /** @var Request $request */
         $request = $container->get('request_stack')->getCurrentRequest();
 
@@ -50,7 +59,7 @@ class FolderDataContainer extends FolderParent
             /** @var AdapterInterface $cache */
             $cache = $container->get('contao_file_usage.file_usage_cache');
 
-            if (!$cache->getItems() || (!self::$breadcrumbSet && $request->query->get('refresh'))) {
+            if (!self::$breadcrumbSet && $request->query->get('refresh')) {
                 /** @var FileUsageFinderInterface $finder */
                 $finder = $container->get('contao_file_usage.finder.file_usage');
                 $finder->find();

@@ -50,7 +50,7 @@ class FilesPermissionsCallback
         unset($GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']);
 
         if ($this->requestStack->getCurrentRequest()->query->get('unused')) {
-            throw new AccessDeniedException('No permission to search for unused files in the file system.');
+            throw new AccessDeniedException('No permission to show unused files.');
         }
     }
 }

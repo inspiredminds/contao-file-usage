@@ -10,4 +10,6 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-$GLOBALS['TL_LANG']['FOP']['unused'] = 'Nach ungenutzten Dateien suchen';
+$GLOBALS['TL_LANG']['FOP']['unused'] = 'Ungenutze Dateien anzeigen';
+$GLOBALS['TL_LANG']['FOP']['showreferences'] = 'Dateireferenzen anzeigen';
+$GLOBALS['TL_LANG']['FOP']['replacereferences'] = 'Dateireferenzen ersetzen';

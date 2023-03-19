@@ -12,23 +12,20 @@ declare(strict_types=1);
 
 namespace InspiredMinds\ContaoFileUsage\Finder;
 
-use Contao\CoreBundle\Framework\ContaoFramework;
 use InspiredMinds\ContaoFileUsage\Provider\FileUsageProviderInterface;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class FileUsageFinder implements FileUsageFinderInterface
 {
-    private $framework;
     private $cache;
     private $provider;
 
     /**
      * @param FileUsageProviderInterface[] $provider
      */
-    public function __construct(ContaoFramework $framework, AdapterInterface $cache, iterable $provider)
+    public function __construct(AdapterInterface $cache, iterable $provider)
     {
-        $this->framework = $framework;
         $this->cache = $cache;
         $this->provider = $provider;
     }
@@ -40,6 +37,8 @@ class FileUsageFinder implements FileUsageFinderInterface
         foreach ($this->provider as $provider) {
             $collection->mergeCollection($provider->find());
         }
+
+        $this->cache->clear();
 
         foreach ($collection as $results) {
             $item = $this->cache->getItem($results->getUuid());

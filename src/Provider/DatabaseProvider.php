@@ -141,6 +141,11 @@ class DatabaseProvider implements FileUsageProviderInterface
 
     private function addMultipleFileReferences(ResultsCollection $collection, string $table, array $row, string $field, $id = null, string $pk = null): void
     {
+        // Ignore some fields
+        if (\in_array($table, ['tl_user', 'tl_user_group'], true) && 'filemounts' === $field) {
+            return;
+        }
+
         $uuids = StringUtil::deserialize($row[$field], true);
 
         foreach ($uuids as $uuid) {
