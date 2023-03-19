@@ -74,10 +74,22 @@ class DatabaseProvider implements FileUsageProviderInterface
 
             // Check if DCA exists
             $dcaExists = $this->resourceFinder->findIn('dca')->depth(0)->files()->name($tableName.'.php')->hasResults();
+            $hasFileTree = false;
+
+            if ($dcaExists) {
+                Controller::loadDataContainer($tableName);
+                $fields = $GLOBALS['TL_DCA'][$tableName]['fields'] ?? [];
+
+                foreach ($fields as $config) {
+                    if ('fileTree' === ($config['inputType'] ?? '')) {
+                        $hasFileTree = true;
+                        break;
+                    }
+                }
+            }
 
             foreach ($results->iterateAssociative() as $result) {
-                if ($dcaExists) {
-                    Controller::loadDataContainer($tableName);
+                if ($hasFileTree) {
                     $this->findFileTreeReferences($collection, $tableName, $result, $pk);
                 }
 
