@@ -109,6 +109,14 @@ services:
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
 
+    contao_file_usage.twig.extension:
+        class: InspiredMinds\ContaoFileUsage\Twig\Extension
+        arguments:
+            - '@request_stack'
+            - '@contao.framework'
+            - '@contao.routing.scope_matcher'
+        tags: ['twig.extension']
+
     InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface: '@contao_file_usage.finder.file_usage'
     InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacerInterface: '@contao_file_usage.replace.file_reference'
     InspiredMinds\ContaoFileUsage\Replace\ResultEnhancerInterface: '@contao_file_usage.result.result_enhancer'

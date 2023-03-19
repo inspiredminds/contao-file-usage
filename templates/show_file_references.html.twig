@@ -1,5 +1,5 @@
 {% trans_default_domain 'ContaoFileUsage' %}
-{% extends "@ContaoCore/Backend/be_page.html.twig" %}
+{% extends "@ContaoFileUsage/be_page.html.twig" %}
 
 {% block headline %}
   <span>{{ 'show_file_usage_headline'|trans }}</span> <span>{{ file.name }}</span>
@@ -49,7 +49,7 @@
             </td>
             <td class="tl_file_list tl_right_nowrap">
               {% if result.getEditUrl()|default %}
-                <a class="edit" href="{{ result.getEditUrl() }}" title="{{ 'edit_record'|trans({ '%record%': result.getTable() ~ '.' ~ result.getId() }) }}"><img src="system/themes/flexible/icons/edit.svg" alt="" width="16" height="16"></a>
+                <a class="edit" href="{{ result.getEditUrl() }}" title="{{ 'edit_record'|trans({ '%record%': result.getTable() ~ '.' ~ result.getId() }) }}"><img src="/system/themes/flexible/icons/edit.svg" alt="" width="16" height="16"></a>
               {% endif %}
             </td>
           </tr>

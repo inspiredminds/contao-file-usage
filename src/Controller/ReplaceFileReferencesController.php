@@ -132,7 +132,7 @@ class ReplaceFileReferencesController
             $fileWidget->validate();
 
             if (!$fileWidget->hasErrors()) {
-                $replaceElements = $request->request->get('elements');
+                $replaceElements = $request->request->all('elements');
 
                 $usages = $session->get(self::SESSION_KEY);
 

@@ -1,5 +1,5 @@
 {% trans_default_domain 'ContaoFileUsage' %}
-{% extends "@ContaoCore/Backend/be_page.html.twig" %}
+{% extends "@ContaoFileUsage/be_page.html.twig" %}
 
 {% block headline %}
   <span>{{ 'replace_image_headline'|trans }}</span> <span>{{ file.name }}</span>
@@ -33,7 +33,7 @@
             <div>
               <input type="checkbox" id="check_all_themes" class="tl_checkbox" onclick="Backend.toggleCheckboxGroup(this,'ctrl_themes')"> <label for="check_all_themes" style="color:#a6a6a6"><em>{{ 'MSC.selectAll'|trans({}, 'contao_default') }}</em></label>
             </div>
-            {% spaceless %}
+            {% apply spaceless %}
               {% for index, result in results %}
                   <div>
                     <input type="checkbox" name="elements[]" class="tl_checkbox" value="{{ index }}" id="opt_elements_{{ index }}" {% if sourceTable == result.getTable() and sourceId == result.getId() %} checked{% endif %}>
@@ -46,7 +46,7 @@
                     </label>
                   </div>
               {% endfor %}
-            {% endspaceless %}
+            {% endapply %}
           </fieldset>
         </div>
       </fieldset>

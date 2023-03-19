@@ -19,7 +19,7 @@ use Contao\FilesModel;
 use Contao\StringUtil;
 use Contao\Validator;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\FileTreeMultipleResult;
@@ -58,16 +58,16 @@ class DatabaseProvider implements FileUsageProviderInterface
             $results = $this->db->createQueryBuilder()
                 ->select('*')
                 ->from($tableName)
-                ->execute()
+                ->executeQuery()
             ;
 
-            if (!$results instanceof ResultStatement) {
+            if (!$results instanceof Result) {
                 continue;
             }
 
             $pk = $this->getPrimaryKey($tableName, $schemaManager);
 
-            foreach ($results as $result) {
+            foreach ($results->iterateAssociative() as $result) {
                 $this->findFileTreeReferences($collection, $tableName, $result, $pk);
                 $this->findInsertTagReferences($collection, $tableName, $result, $pk);
             }
@@ -120,7 +120,7 @@ class DatabaseProvider implements FileUsageProviderInterface
     {
         $table = $schemaManager->listTableDetails($table) ?? null;
 
-        if (null === $table || !$table->hasPrimaryKey()) {
+        if (null === $table || null === $table->getPrimaryKey()) {
             return null;
         }
 
