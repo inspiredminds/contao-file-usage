@@ -58,7 +58,7 @@ class DatabaseProvider implements FileUsageProviderInterface
             $results = $this->db->createQueryBuilder()
                 ->select('*')
                 ->from($tableName)
-                ->executeQuery()
+                ->execute()
             ;
 
             if (!$results instanceof Result) {
