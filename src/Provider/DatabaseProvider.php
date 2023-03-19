@@ -31,6 +31,7 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 class DatabaseProvider implements FileUsageProviderInterface
 {
     private const INSERT_TAG_PATTERN = '~{{(file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
+    private const IGNORE_TABLES = ['tl_version', 'tl_log', 'tl_undo', 'tl_search_index'];
 
     private $db;
     private $resourceFinder;
@@ -55,6 +56,10 @@ class DatabaseProvider implements FileUsageProviderInterface
         foreach ($schemaManager->listTables() as $table) {
             $tableName = $table->getName();
 
+            if (\in_array($tableName, self::IGNORE_TABLES, true)) {
+                continue;
+            }
+
             $results = $this->db->createQueryBuilder()
                 ->select('*')
                 ->from($tableName)
@@ -67,8 +72,15 @@ class DatabaseProvider implements FileUsageProviderInterface
 
             $pk = $this->getPrimaryKey($tableName, $schemaManager);
 
+            // Check if DCA exists
+            $dcaExists = $this->resourceFinder->findIn('dca')->depth(0)->files()->name($tableName.'.php')->hasResults();
+
             foreach ($results->iterateAssociative() as $result) {
-                $this->findFileTreeReferences($collection, $tableName, $result, $pk);
+                if ($dcaExists) {
+                    Controller::loadDataContainer($tableName);
+                    $this->findFileTreeReferences($collection, $tableName, $result, $pk);
+                }
+
                 $this->findInsertTagReferences($collection, $tableName, $result, $pk);
             }
         }
@@ -78,15 +90,6 @@ class DatabaseProvider implements FileUsageProviderInterface
 
     private function findFileTreeReferences(ResultsCollection $collection, string $table, array $row, string $pk = null): void
     {
-        // Check if DCA actually exists
-        $dca = $this->resourceFinder->findIn('dca')->depth(0)->files()->name($table.'.php');
-
-        if (!$dca->hasResults()) {
-            return;
-        }
-
-        Controller::loadDataContainer($table);
-
         $fields = $GLOBALS['TL_DCA'][$table]['fields'] ?? [];
 
         foreach ($fields as $field => $config) {
@@ -186,9 +189,7 @@ class DatabaseProvider implements FileUsageProviderInterface
 
             if (preg_match_all(self::INSERT_TAG_PATTERN, $data, $matches)) {
                 foreach ($matches[2] ?? [] as $uuid) {
-                    if (Validator::isStringUuid($uuid)) {
-                        $collection->addResult($uuid, new DatabaseInsertTagResult($table, $field, $id, $pk));
-                    }
+                    $collection->addResult($uuid, new DatabaseInsertTagResult($table, $field, $id, $pk));
                 }
             }
         }
