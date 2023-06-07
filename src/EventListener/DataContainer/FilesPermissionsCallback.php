@@ -30,7 +30,9 @@ class FilesPermissionsCallback
 
     public function __invoke(): void
     {
-        $user = $this->security->getUser();
+        if (null === ($user = $this->security->getUser())) {
+            return;
+        }
 
         if (!$user instanceof BackendUser) {
             throw new \RuntimeException('Unexpected user instance.');
