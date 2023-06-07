@@ -30,11 +30,9 @@ class FilesPermissionsCallback
 
     public function __invoke(): void
     {
-        if ('cli' === \PHP_SAPI) {
+        if (null === ($user = $this->security->getUser())) {
             return;
         }
-
-        $user = $this->security->getUser();
 
         if (!$user instanceof BackendUser) {
             throw new \RuntimeException('Unexpected user instance.');
