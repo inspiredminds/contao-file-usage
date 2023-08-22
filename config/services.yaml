@@ -17,6 +17,7 @@ services:
         arguments:
             - '@contao_file_usage.file_usage_cache'
             - !tagged_iterator { tag: contao_file_usage.provider }
+            - '@database_connection'
 
     contao_file_usage.console.file_usage_warmup:
         class: InspiredMinds\ContaoFileUsage\Console\FileUsageWarmupCommand
@@ -92,6 +93,11 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
             - '@contao.framework'
+
+    contao_file_usage.provider.rocksolid_custom_elements:
+        class: InspiredMinds\ContaoFileUsage\Provider\RocksolidCustomElementsProvider
+        arguments:
+            - '@database_connection'
 
     contao_file_usage.replace.file_reference:
         class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer
