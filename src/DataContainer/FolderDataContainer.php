@@ -107,7 +107,8 @@ class FolderDataContainer extends FolderParent
                 }
 
                 $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['href'] .= '&refresh=1';
-                $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['icon'] = 'bundles/contaofileusage/repeat.svg';
+                $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['icon'] = 'bundles/contaofileusage/refresh.svg';
+                $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['label'] = $GLOBALS['TL_LANG']['tl_files']['refresh_unused'];
 
                 self::$breadcrumbSet = true;
             }

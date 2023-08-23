@@ -11,3 +11,4 @@ declare(strict_types=1);
  */
 
 $GLOBALS['TL_LANG']['tl_files']['unused'] = 'Unbenutzte Dateien';
+$GLOBALS['TL_LANG']['tl_files']['refresh_unused'] = ['Unbenutzte Dateien aktualisieren', 'Sucht nach Dateireferenzen. Vorsicht, hohe Auslastung!'];

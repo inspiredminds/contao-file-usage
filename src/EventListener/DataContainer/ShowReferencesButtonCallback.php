@@ -64,14 +64,15 @@ class ShowReferencesButtonCallback
             $results = $cacheItem->get();
 
             if (!$results->count()) {
-                $attributes = ' style="opacity:0.5"';
+                $attributes = ' style="opacity:0.33"';
+                $image = 'bundles/contaofileusage/link-off.svg';
                 $title = $this->translator->trans('button_no_file_usage', ['%filename%' => basename($file->path)], 'ContaoFileUsage');
             } else {
                 $title = $this->translator->trans('button_show_file_usage', ['%filename%' => basename($file->path)], 'ContaoFileUsage');
             }
         } else {
             $image = 'bundles/contaofileusage/search.svg';
-            $attributes = ' style="opacity:0.5"';
+            $attributes = ' style="opacity:0.66"';
             $title = $this->translator->trans('button_search_file_usage', ['%filename%' => basename($file->path)], 'ContaoFileUsage');
         }
 

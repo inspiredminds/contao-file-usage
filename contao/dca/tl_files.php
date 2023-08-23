@@ -18,6 +18,6 @@ $GLOBALS['TL_DCA']['tl_files']['list']['operations']['fileusage'] = [];
 $GLOBALS['TL_DCA']['tl_files']['list']['global_operations'] = array_merge([
     'unused' => [
         'href' => 'unused=1',
-        'icon' => 'bundles/contaofileusage/search_16px.svg',
+        'icon' => 'bundles/contaofileusage/search.svg',
     ],
 ], $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']);
