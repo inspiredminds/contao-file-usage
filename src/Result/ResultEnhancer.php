@@ -76,6 +76,10 @@ class ResultEnhancer implements ResultEnhancerInterface
             ->fetchAssociative()
         ;
 
+        if (false === $record) {
+            return;
+        }
+
         // Get edit URL
         if ($module = $this->getModuleForTable(($record['ptable'] ?? null) ?: $table)) {
             $url = $this->urlGenerator->generate('contao_backend', [
@@ -169,6 +173,10 @@ class ResultEnhancer implements ResultEnhancerInterface
             ->execute()
             ->fetchAssociative()
         ;
+
+        if (false === $record) {
+            return null;
+        }
 
         foreach (['title', 'name', 'headline'] as $titleField) {
             if (!empty($record[$titleField])) {
