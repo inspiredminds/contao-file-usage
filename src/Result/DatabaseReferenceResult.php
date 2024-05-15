@@ -30,7 +30,7 @@ class DatabaseReferenceResult implements ResultInterface
      * @param mixed       $id    The ID of the primary key of the database record
      * @param string|null $pk    The primary key of the database table
      */
-    public function __construct(string $table, string $field, $id = null, string $pk = null)
+    public function __construct(string $table, string $field, $id = null, ?string $pk = null)
     {
         $this->table = $table;
         $this->field = $field;

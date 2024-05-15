@@ -40,8 +40,8 @@
         "contao-manager-plugin": "InspiredMinds\\ContaoFileUsage\\ContaoManager\\Plugin"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16 || ^3.0",
-        "rector/rector": "^0.14.5"
+        "contao/easy-coding-standard": "^6.0",
+        "contao/rector": "^1.0"
     },
     "config": {
         "allow-plugins": {

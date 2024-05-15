@@ -100,7 +100,7 @@ class DatabaseProvider implements FileUsageProviderInterface
         return $collection;
     }
 
-    private function findFileTreeReferences(ResultsCollection $collection, string $table, array $row, string $pk = null): void
+    private function findFileTreeReferences(ResultsCollection $collection, string $table, array $row, ?string $pk = null): void
     {
         $fields = $GLOBALS['TL_DCA'][$table]['fields'] ?? [];
 
@@ -154,7 +154,7 @@ class DatabaseProvider implements FileUsageProviderInterface
         return reset($columns);
     }
 
-    private function addMultipleFileReferences(ResultsCollection $collection, string $table, array $row, string $field, $id = null, string $pk = null): void
+    private function addMultipleFileReferences(ResultsCollection $collection, string $table, array $row, string $field, $id = null, ?string $pk = null): void
     {
         // Ignore some fields
         if (\in_array($table, ['tl_user', 'tl_user_group'], true) && 'filemounts' === $field) {
@@ -190,7 +190,7 @@ class DatabaseProvider implements FileUsageProviderInterface
         }
     }
 
-    private function findInsertTagReferences(ResultsCollection $collection, string $table, array $row, string $pk = null): void
+    private function findInsertTagReferences(ResultsCollection $collection, string $table, array $row, ?string $pk = null): void
     {
         $id = $pk ? $row[$pk] : null;
 

@@ -1,12 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Contao File Usage extension.
+ *
+ * (c) inspiredminds
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace InspiredMinds\ContaoFileUsage\Migration;
 
 use Contao\CoreBundle\Migration\AbstractMigration;
 use Contao\CoreBundle\Migration\MigrationResult;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class CacheDirMigration extends AbstractMigration
 {
@@ -20,14 +29,12 @@ class CacheDirMigration extends AbstractMigration
         string $environment,
         string $oldCacheDir,
         string $newCacheDir
-    )
-    {
+    ) {
         $this->filesystem = $filesystem;
         $this->environment = $environment;
         $this->oldDir = Path::join($oldCacheDir, 'fileusage');
         $this->newDir = Path::join($newCacheDir, 'fileusage');
     }
-
 
     public function shouldRun(): bool
     {
