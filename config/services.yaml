@@ -1,3 +1,6 @@
+parameters:
+    contao_file_usage.file_usage_cache_dir: '%kernel.project_dir%/var'
+
 services:
     _defaults:
         autoconfigure: true
@@ -5,7 +8,7 @@ services:
     contao_file_usage.file_usage_cache:
         class: Symfony\Component\Cache\Adapter\FilesystemAdapter
         public: true
-        arguments: ['fileusage', 0, '%kernel.cache_dir%']
+        arguments: ['fileusage', 0, '%contao_file_usage.file_usage_cache_dir%']
 
     contao_file_usage.query_cache:
         class: Doctrine\DBAL\Cache\QueryCacheProfile
@@ -86,6 +89,14 @@ services:
         public: true
         arguments: 
             - '@contao_file_usage.file_usage_cache'
+
+    contao_file_usage.migration.cache_dir:
+        class: InspiredMinds\ContaoFileUsage\Migration\CacheDirMigration
+        arguments:
+            - '@filesystem'
+            - '%kernel.environment%'
+            - '%kernel.cache_dir%'
+            - '%contao_file_usage.file_usage_cache_dir%'
 
     contao_file_usage.provider.database:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider
