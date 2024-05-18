@@ -81,6 +81,7 @@ services:
             - '@contao_file_usage.file_usage_cache'
             - '@translator'
             - '@security.helper'
+            - '@request_stack'
         tags: 
             - { name: contao.callback, table: tl_files, target: list.operations.fileusage.button }
 
