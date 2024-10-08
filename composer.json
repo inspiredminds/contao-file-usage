@@ -29,7 +29,8 @@
         "symfony/cache": "^4.4 || ^5.4 || ^6.2",
         "symfony/config": "^4.4 || ^5.4 || ^6.2",
         "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.2",
-        "symfony/http-kernel": "^4.4 || ^5.4 || ^6.2"
+        "symfony/http-kernel": "^4.4 || ^5.4 || ^6.2",
+        "webmozart/path-util": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -40,8 +41,8 @@
         "contao-manager-plugin": "InspiredMinds\\ContaoFileUsage\\ContaoManager\\Plugin"
     },
     "require-dev": {
-        "contao/easy-coding-standard": "^6.0",
-        "contao/rector": "^1.0"
+        "friendsofphp/php-cs-fixer": "^2.16 || ^3.0",
+        "rector/rector": "^0.14.5"
     },
     "config": {
         "allow-plugins": {

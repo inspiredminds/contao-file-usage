@@ -26,6 +26,7 @@ use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\PathUtil\Path;
 
 if (class_exists(FolderDriver::class)) {
     class FolderParent extends FolderDriver
@@ -39,7 +40,7 @@ if (class_exists(FolderDriver::class)) {
 
 class FolderDataContainer extends FolderParent
 {
-    protected static $breadcrumbSet = false;
+    protected static $firstIteration = false;
 
     protected function generateTree($path, $intMargin, $mount = false, $blnProtected = true, $arrClipboard = null, $arrFound = [])
     {
@@ -59,36 +60,39 @@ class FolderDataContainer extends FolderParent
             /** @var AdapterInterface $cache */
             $cache = $container->get('contao_file_usage.file_usage_cache');
 
-            if (!self::$breadcrumbSet && $request->query->get('refresh')) {
+            if (!self::$firstIteration && $request->query->get('refresh')) {
                 /** @var FileUsageFinderInterface $finder */
                 $finder = $container->get('contao_file_usage.finder.file_usage');
                 $finder->find();
             }
 
-            $unused = [];
+            if (!self::$firstIteration) {
+                $unused = [];
+                $projectDir = System::getContainer()->getParameter('kernel.project_dir');
+                $relativePath = Path::makeRelative($path, $projectDir);
 
-            foreach (FilesModel::findByType('file') ?? [] as $file) {
-                $uuid = StringUtil::binToUuid($file->uuid);
+                /** @var FilesModel $file */
+                foreach (FilesModel::findBy(["type = 'file'", 'path LIKE ?'], [rtrim($relativePath, '/').'/%']) ?? [] as $file) {
+                    $uuid = StringUtil::binToUuid($file->uuid);
 
-                $item = $cache->getItem($uuid);
+                    $item = $cache->getItem($uuid);
 
-                if ($item->isHit()) {
-                    /** @var Results $results */
-                    $results = $item->get();
+                    if ($item->isHit()) {
+                        /** @var Results $results */
+                        $results = $item->get();
+                    }
+
+                    if (!$item->isHit() || !$results->hasResults()) {
+                        $unused[] = $file->path;
+                    }
                 }
 
-                if (!$item->isHit() || !$results->hasResults()) {
-                    $unused[] = $file->path;
+                if (!empty($arrFound)) {
+                    $unused = array_intersect($arrFound, $unused);
                 }
-            }
 
-            if (!empty($arrFound)) {
-                $unused = array_intersect($arrFound, $unused);
-            }
+                $arrFound = $unused;
 
-            $arrFound = $unused;
-
-            if (!self::$breadcrumbSet) {
                 /** @var TranslatorInterface $translator */
                 $translator = $container->get('translator');
 
@@ -110,7 +114,7 @@ class FolderDataContainer extends FolderParent
                 $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['icon'] = 'bundles/contaofileusage/refresh.svg';
                 $GLOBALS['TL_DCA']['tl_files']['list']['global_operations']['unused']['label'] = $GLOBALS['TL_LANG']['tl_files']['refresh_unused'];
 
-                self::$breadcrumbSet = true;
+                self::$firstIteration = true;
             }
         }
 
