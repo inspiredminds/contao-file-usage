@@ -10,4 +10,4 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-$GLOBALS['TL_LANG']['tl_maintenance_jobs']['fileusage'] = ['Dateinutzungs-Cache', 'Den Dateinutzungs-Caceh leeren.'];
+$GLOBALS['TL_LANG']['tl_maintenance_jobs']['fileusage'] = ['Dateinutzungs-Cache', 'Den Dateinutzungs-Cache leeren.'];
