@@ -38,6 +38,11 @@ class DatabaseReferenceResult implements ResultInterface
         $this->pk = $pk;
     }
 
+    public function getType(): string
+    {
+        return 'database';
+    }
+
     public function getTable(): string
     {
         return $this->table;

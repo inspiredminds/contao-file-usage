@@ -53,12 +53,13 @@ services:
             - '@security.helper'
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
+            - 'database': '@@ContaoFileUsage/file_usage_database_result.html.twig'
         tags: ['controller.service_arguments']
 
     contao_file_usage.cron.build_cache:
         class: InspiredMinds\ContaoFileUsage\Cron\BuildCacheCronJob
         arguments:
-            - '@contao_file_usage.finder.file_usage' 
+            - '@contao_file_usage.finder.file_usage'
 
     contao_file_usage.event_listener.backend_menu:
         class: InspiredMinds\ContaoFileUsage\EventListener\BackendMenuListener
@@ -82,13 +83,13 @@ services:
             - '@translator'
             - '@security.helper'
             - '@request_stack'
-        tags: 
+        tags:
             - { name: contao.callback, table: tl_files, target: list.operations.fileusage.button }
 
     contao_file_usage.maintenance.clear_file_usage_cache:
         class: InspiredMinds\ContaoFileUsage\Maintenance\ClearFileUsageCache
         public: true
-        arguments: 
+        arguments:
             - '@contao_file_usage.file_usage_cache'
 
     contao_file_usage.migration.cache_dir:
@@ -137,4 +138,4 @@ services:
 
     InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface: '@contao_file_usage.finder.file_usage'
     InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacerInterface: '@contao_file_usage.replace.file_reference'
-    InspiredMinds\ContaoFileUsage\Replace\ResultEnhancerInterface: '@contao_file_usage.result.result_enhancer'
+    InspiredMinds\ContaoFileUsage\Result\ResultEnhancerInterface: '@contao_file_usage.result.result_enhancer'

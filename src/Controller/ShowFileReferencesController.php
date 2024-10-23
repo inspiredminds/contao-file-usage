@@ -38,6 +38,7 @@ class ShowFileReferencesController
     private $security;
     private $csrfTokenManager;
     private $csrfTokenName;
+    private array $typeMap;
 
     public function __construct(
         Environment $twig,
@@ -47,7 +48,8 @@ class ShowFileReferencesController
         ResultEnhancerInterface $enhancer,
         Security $security,
         ContaoCsrfTokenManager $csrfTokenManager,
-        string $csrfTokenName
+        string $csrfTokenName,
+        array $typeMap,
     ) {
         $this->twig = $twig;
         $this->framework = $framework;
@@ -57,6 +59,7 @@ class ShowFileReferencesController
         $this->security = $security;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfTokenName = $csrfTokenName;
+        $this->typeMap = $typeMap;
     }
 
     /**
@@ -104,6 +107,7 @@ class ShowFileReferencesController
             'file' => $file,
             '_target_path' => base64_encode($backUrl),
             'results' => $results,
+            'result_type_map' => $this->typeMap,
         ]));
     }
 }

@@ -14,4 +14,5 @@ namespace InspiredMinds\ContaoFileUsage\Result;
 
 interface ResultInterface
 {
+    public function getType(): string;
 }
