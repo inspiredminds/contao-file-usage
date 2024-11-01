@@ -36,7 +36,7 @@
             </td>
             <td class="tl_file_list">
               {% if result.getParentTitle()|default %}
-                {% if result.getParentEditUrl()|default %}<a href="{{ result.getParentEditUrl() }}" class="edit" title="{{ 'edit_record'|trans({ '%id%': '"' ~ result.getParentTitle() ~ '"' }) }}">{{ result.getParentTitle() }}</a>{% else %}{{ result.getParentTitle() }}{% endif %}
+                {% if result.getParentEditUrl()|default %}<a href="{{ result.getParentEditUrl() }}" class="edit" title="{{ 'edit_record'|trans({ '%record%': '"' ~ result.getParentTitle() ~ '"' }) }}">{{ result.getParentTitle() }}</a>{% else %}{{ result.getParentTitle() }}{% endif %}
               {% else %}
                 -
               {% endif %}
