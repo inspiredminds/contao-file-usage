@@ -14,4 +14,8 @@ namespace InspiredMinds\ContaoFileUsage\Result;
 
 interface ResultInterface
 {
+    /**
+     * The Twig template to use when rendering the result in the back end.
+     */
+    public function getTemplate(): string;
 }

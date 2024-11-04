@@ -38,6 +38,11 @@ class DatabaseReferenceResult implements ResultInterface
         $this->pk = $pk;
     }
 
+    public function getTemplate(): string
+    {
+        return '@ContaoFileUsage/result/database_result.html.twig';
+    }
+
     public function getTable(): string
     {
         return $this->table;

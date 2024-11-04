@@ -77,4 +77,23 @@ service with `contao_file_usage.provider` manually.
 
 You might want or need to implement a new result container using the `ResultInterface` for your purposes (e.g. if your 
 provider looks in the contents of files, rather than the database for example, which this extension currently does not 
-do by default). Note that currently only `DatabaseReferenceResult` instances will be shown in the file manager.
+do by default). In your interface you will need to reference the Twig template that should be used when rendering the
+result in the back end:
+
+```php
+// src/FilesUsage/CustomFileUsageResult.php
+use InspiredMinds\ContaoFileUsage\Result\ResultInterface;
+
+class CustomFileUsageResult implements ResultInterface
+{
+    public function __construct(
+        // Your result data
+    ) {
+    }
+
+    public function getTemplate(): string
+    {
+        return '@Foobar/my_file_usage_result.html.twig';
+    }
+}
+```
