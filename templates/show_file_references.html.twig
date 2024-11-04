@@ -26,7 +26,7 @@
           <th class="tl_folder_tlist tl_right_nowrap"></th>
         </tr>
         {% for index, result in results %}
-          {% include result_type_map[result.type] %}
+          {% include result.template with { result: result } %}
         {% endfor %}
       </tbody>
     </table>

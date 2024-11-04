@@ -53,7 +53,6 @@ services:
             - '@security.helper'
             - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
-            - 'database': '@@ContaoFileUsage/file_usage_database_result.html.twig'
         tags: ['controller.service_arguments']
 
     contao_file_usage.cron.build_cache:
