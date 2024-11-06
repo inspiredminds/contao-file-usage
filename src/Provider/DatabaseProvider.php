@@ -178,9 +178,7 @@ class DatabaseProvider implements FileUsageProviderInterface
             $file = FilesModel::findByUuid($uuid);
 
             if (null !== $file && 'folder' === $file->type) {
-                $files = FilesModel::findByPid($uuid);
-
-                foreach ($files as $child) {
+                foreach (FilesModel::findByPid($uuid) ?? [] as $child) {
                     $collection->addResult(
                         StringUtil::binToUuid($child->uuid),
                         new FileTreeMultipleResult($table, $field, $id, $pk)
