@@ -16,7 +16,6 @@ use Contao\Controller;
 use Contao\CoreBundle\Config\ResourceFinder;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
-use Contao\Model\Collection;
 use Contao\StringUtil;
 use Contao\Validator;
 use Doctrine\DBAL\Connection;
