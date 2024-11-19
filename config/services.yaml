@@ -106,6 +106,14 @@ services:
             - '@contao.resource_finder'
             - '@contao.framework'
 
+    contao_file_usage.provider.database_path:
+        class: InspiredMinds\ContaoFileUsage\Provider\DatabasePathProvider
+        arguments:
+            - '@database_connection'
+            - '@contao.resource_finder'
+            - '@contao.framework'
+            - '%contao.upload_path%'
+
     contao_file_usage.provider.rocksolid_custom_elements:
         class: InspiredMinds\ContaoFileUsage\Provider\RocksolidCustomElementsProvider
         arguments:
