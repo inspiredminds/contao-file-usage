@@ -47,8 +47,9 @@ You can also warm up the file usage result cache from the command line, using th
 
 Currently this extension can find any references created by the `fileTree` input field of any (database based) DCA and 
 it can find any references from `{{file::*}}`, `{{picture::*}}` and `{{figure::*}}` insert tags in any text based fields 
-in the database. If you want to expand this search to other locations you can implement your own _file usage provider_ 
-by implementing the `FileUsageProviderInterface`.
+in the database. It can also find `src="…"` references in the database where only the path is used in `textarea` fields.
+If you want to expand this search to other locations you can implement your own _file usage provider_  by implementing
+the `FileUsageProviderInterface`.
 
 ```php
 // src/FileUsage/FoobarProvider.php
