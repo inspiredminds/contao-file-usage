@@ -24,9 +24,9 @@ use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webmozart\PathUtil\Path;
 
 if (class_exists(FolderDriver::class)) {
     class FolderParent extends FolderDriver

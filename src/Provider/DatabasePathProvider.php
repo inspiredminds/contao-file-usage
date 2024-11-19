@@ -30,13 +30,13 @@ class DatabasePathProvider extends AbstractDatabaseProvider
     private ContaoFramework $framework;
     private string $pathPattern = '~src\s*=\s*"(__contao_upload_path__/.+?)"~';
 
-    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework, string $uploadPath)
+    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework, string $uploadPath, array $ignoreTables)
     {
         $this->resourceFinder = $resourceFinder;
         $this->framework = $framework;
         $this->pathPattern = str_replace('__contao_upload_path__', $uploadPath, $this->pathPattern);
 
-        parent::__construct($db);
+        parent::__construct($db, $ignoreTables);
     }
 
     public function find(): ResultsCollection

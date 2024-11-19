@@ -33,12 +33,12 @@ class DatabaseProvider extends AbstractDatabaseProvider
     private ResourceFinder $resourceFinder;
     private ContaoFramework $framework;
 
-    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework)
+    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework, array $ignoreTables)
     {
         $this->resourceFinder = $resourceFinder;
         $this->framework = $framework;
 
-        parent::__construct($db);
+        parent::__construct($db, $ignoreTables);
     }
 
     public function find(): ResultsCollection

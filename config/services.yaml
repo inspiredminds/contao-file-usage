@@ -1,5 +1,10 @@
 parameters:
     contao_file_usage.file_usage_cache_dir: '%kernel.project_dir%/var'
+    contao_file_usage.ignore_tables:
+        - tl_version
+        - tl_log
+        - tl_undo
+        - tl_search_index
 
 services:
     _defaults:
@@ -105,6 +110,7 @@ services:
             - '@database_connection'
             - '@contao.resource_finder'
             - '@contao.framework'
+            - '%contao_file_usage.ignore_tables%'
 
     contao_file_usage.provider.database_path:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabasePathProvider
@@ -113,6 +119,7 @@ services:
             - '@contao.resource_finder'
             - '@contao.framework'
             - '%contao.upload_path%'
+            - '%contao_file_usage.ignore_tables%'
 
     contao_file_usage.provider.rocksolid_custom_elements:
         class: InspiredMinds\ContaoFileUsage\Provider\RocksolidCustomElementsProvider

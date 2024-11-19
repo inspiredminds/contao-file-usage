@@ -15,6 +15,7 @@ namespace InspiredMinds\ContaoFileUsage\Provider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 
 /**
  * Provides common used methods to search the database for file references.
@@ -26,7 +27,7 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
     private Connection $db;
     private ?AbstractSchemaManager $schemaManager = null;
 
-    public function __construct(Connection $db)
+    public function __construct(Connection $db, protected readonly array $ignoreTables)
     {
         $this->db = $db;
     }
@@ -54,7 +55,7 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
             $results = $this->db->createQueryBuilder()
                 ->select('*')
                 ->from($tableName)
-                ->execute()
+                ->executeQuery()
             ;
 
             if (!$results instanceof Result) {
@@ -69,7 +70,11 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
 
     protected function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): ?string
     {
-        $table = $this->getSchemaManager()->listTableDetails($table) ?? null;
+        try {
+            $table = $this->getSchemaManager()->introspectTable($table);
+        } catch (TableDoesNotExist) {
+            return null;
+        }
 
         if (null === $table || null === $table->getPrimaryKey()) {
             return null;
