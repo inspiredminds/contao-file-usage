@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -24,13 +24,10 @@ use InspiredMinds\ContaoFileUsage\Result\ResultInterface;
 
 class FileReferenceReplacer implements FileReferenceReplacerInterface
 {
-    private $db;
-    private $framework;
-
-    public function __construct(Connection $db, ContaoFramework $framework)
-    {
-        $this->db = $db;
-        $this->framework = $framework;
+    public function __construct(
+        private readonly Connection $db,
+        private readonly ContaoFramework $framework,
+    ) {
     }
 
     public function replace(ResultInterface $result, string $oldUuid, string $newUuid): void
@@ -49,7 +46,7 @@ class FileReferenceReplacer implements FileReferenceReplacerInterface
                 UPDATE '.$this->db->quoteIdentifier($result->getTable()).'
                    SET '.$this->db->quoteIdentifier($result->getField()).' = REPLACE('.$this->db->quoteIdentifier($result->getField()).', ?, ?)
                  WHERE '.$this->db->quoteIdentifier($result->getPk()).' = ?',
-                ['::'.$oldUuid, '::'.$newUuid, $result->getId()]
+                ['::'.$oldUuid, '::'.$newUuid, $result->getId()],
             );
 
             return;
@@ -71,7 +68,7 @@ class FileReferenceReplacer implements FileReferenceReplacerInterface
                 UPDATE '.$this->db->quoteIdentifier($result->getTable()).'
                    SET '.$this->db->quoteIdentifier($result->getField()).' = REPLACE('.$this->db->quoteIdentifier($result->getField()).', ?, ?)
                  WHERE '.$this->db->quoteIdentifier($result->getPk()).' = ?',
-                [$oldUuid, $newUuid, $result->getId()]
+                [$oldUuid, $newUuid, $result->getId()],
             );
 
             $oldUuid = $this->convertUuidToString($oldUuid);
@@ -81,7 +78,7 @@ class FileReferenceReplacer implements FileReferenceReplacerInterface
                 UPDATE '.$this->db->quoteIdentifier($result->getTable()).'
                    SET '.$this->db->quoteIdentifier($result->getField()).' = REPLACE('.$this->db->quoteIdentifier($result->getField()).', ?, ?)
                  WHERE '.$this->db->quoteIdentifier($result->getPk()).' = ?',
-                [$oldUuid, $newUuid, $result->getId()]
+                [$oldUuid, $newUuid, $result->getId()],
             );
 
             return;

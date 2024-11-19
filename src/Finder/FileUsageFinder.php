@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -21,18 +21,14 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class FileUsageFinder implements FileUsageFinderInterface
 {
-    private $cache;
-    private $provider;
-    private $db;
-
     /**
-     * @param FileUsageProviderInterface[] $provider
+     * @param iterable<FileUsageProviderInterface> $provider
      */
-    public function __construct(AdapterInterface $cache, iterable $provider, Connection $db)
-    {
-        $this->cache = $cache;
-        $this->provider = $provider;
-        $this->db = $db;
+    public function __construct(
+        private readonly AdapterInterface $cache,
+        private readonly iterable $provider,
+        private readonly Connection $db,
+    ) {
     }
 
     public function find(): ResultsCollection

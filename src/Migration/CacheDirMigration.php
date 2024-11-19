@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -19,19 +19,16 @@ use Symfony\Component\Filesystem\Path;
 
 class CacheDirMigration extends AbstractMigration
 {
-    private Filesystem $filesystem;
-    private string $environment;
-    private string $oldDir;
-    private string $newDir;
+    private readonly string $oldDir;
+
+    private readonly string $newDir;
 
     public function __construct(
-        Filesystem $filesystem,
-        string $environment,
+        private readonly Filesystem $filesystem,
+        private readonly string $environment,
         string $oldCacheDir,
-        string $newCacheDir
+        string $newCacheDir,
     ) {
-        $this->filesystem = $filesystem;
-        $this->environment = $environment;
         $this->oldDir = Path::join($oldCacheDir, 'fileusage');
         $this->newDir = Path::join($newCacheDir, 'fileusage');
     }
@@ -42,11 +39,7 @@ class CacheDirMigration extends AbstractMigration
             return false;
         }
 
-        if ($this->filesystem->exists($this->newDir) || !$this->filesystem->exists($this->oldDir)) {
-            return false;
-        }
-
-        return true;
+        return !$this->filesystem->exists($this->newDir) && $this->filesystem->exists($this->oldDir);
     }
 
     public function run(): MigrationResult

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -22,11 +22,8 @@ use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
  */
 class BuildCacheCronJob
 {
-    private $finder;
-
-    public function __construct(FileUsageFinderInterface $finder)
+    public function __construct(private readonly FileUsageFinderInterface $finder)
     {
-        $this->finder = $finder;
     }
 
     public function __invoke(string $scope): void

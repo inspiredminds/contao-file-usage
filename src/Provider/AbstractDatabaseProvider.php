@@ -24,17 +24,17 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
 {
     private const IGNORE_TABLES = ['tl_version', 'tl_log', 'tl_undo', 'tl_search_index'];
 
-    private Connection $db;
-    private ?AbstractSchemaManager $schemaManager = null;
+    private AbstractSchemaManager|null $schemaManager = null;
 
-    public function __construct(Connection $db, protected readonly array $ignoreTables)
-    {
-        $this->db = $db;
+    public function __construct(
+        private readonly Connection $db,
+        protected readonly array $ignoreTables,
+    ) {
     }
 
     protected function getSchemaManager(): AbstractSchemaManager
     {
-        if (null === $this->schemaManager) {
+        if (!$this->schemaManager) {
             $this->schemaManager = method_exists($this->db, 'createSchemaManager') ? $this->db->createSchemaManager() : $this->db->getSchemaManager();
         }
 
@@ -68,7 +68,7 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
         return $tablesWithResults;
     }
 
-    protected function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): ?string
+    protected function getPrimaryKey(string $table, AbstractSchemaManager $schemaManager): string|null
     {
         try {
             $table = $this->getSchemaManager()->introspectTable($table);
@@ -76,7 +76,7 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
             return null;
         }
 
-        if (null === $table || null === $table->getPrimaryKey()) {
+        if (!$table || null === $table->getPrimaryKey()) {
             return null;
         }
 

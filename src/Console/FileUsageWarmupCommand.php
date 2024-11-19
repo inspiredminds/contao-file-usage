@@ -24,14 +24,10 @@ class FileUsageWarmupCommand extends Command
 {
     protected static $defaultName = 'contao_file_usage:warmup';
 
-    private $finder;
-    private $stopwatch;
-
-    public function __construct(FileUsageFinderInterface $finder, ?Stopwatch $stopwatch)
-    {
-        $this->finder = $finder;
-        $this->stopwatch = $stopwatch;
-
+    public function __construct(
+        private readonly FileUsageFinderInterface $finder,
+        private readonly Stopwatch|null $stopwatch,
+    ) {
         parent::__construct();
     }
 

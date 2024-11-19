@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -42,42 +42,18 @@ class ReplaceFileReferencesController
 {
     public const SESSION_KEY = 'fileusage';
 
-    private $twig;
-    private $framework;
-    private $translator;
-    private $urlGenerator;
-    private $finder;
-    private $replacer;
-    private $cache;
-    private $enhancer;
-    private $security;
-    private $csrfTokenManager;
-    private $csrfTokenName;
-
     public function __construct(
-        Environment $twig,
-        ContaoFramework $framework,
-        TranslatorInterface $translator,
-        UrlGeneratorInterface $urlGenerator,
-        FileUsageFinderInterface $finder,
-        FileReferenceReplacerInterface $replacer,
-        AdapterInterface $cache,
-        ResultEnhancerInterface $enhancer,
-        Security $security,
-        ContaoCsrfTokenManager $csrfTokenManager,
-        string $csrfTokenName
+        private readonly Environment $twig,
+        private readonly ContaoFramework $framework,
+        private readonly TranslatorInterface $translator,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly FileUsageFinderInterface $finder,
+        private readonly FileReferenceReplacerInterface $replacer,
+        private readonly AdapterInterface $cache,
+        private readonly ResultEnhancerInterface $enhancer,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly ContaoCsrfTokenManager $csrfTokenManager,
     ) {
-        $this->twig = $twig;
-        $this->framework = $framework;
-        $this->translator = $translator;
-        $this->urlGenerator = $urlGenerator;
-        $this->finder = $finder;
-        $this->replacer = $replacer;
-        $this->cache = $cache;
-        $this->enhancer = $enhancer;
-        $this->security = $security;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->csrfTokenName = $csrfTokenName;
     }
 
     /**
@@ -88,7 +64,7 @@ class ReplaceFileReferencesController
      */
     public function __invoke(Request $request, string $fileUuid, string $sourceTable): Response
     {
-        $user = $this->security->getUser();
+        $user = $this->tokenStorage->getToken()?->getUser();
 
         if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
             throw new AccessDeniedException('No permission to replace file references.');
@@ -177,7 +153,7 @@ class ReplaceFileReferencesController
         $fileManagerUrl = $this->urlGenerator->generate('contao_backend', [
             'do' => 'files',
             'fn' => \dirname($file->path),
-            'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+            'rt' => $this->csrfTokenManager->getDefaultTokenValue(),
             'ref' => $request->attributes->get('_contao_referer_id'),
         ]);
 
@@ -186,7 +162,7 @@ class ReplaceFileReferencesController
             'act' => 'move',
             'mode' => 2,
             'pid' => \dirname($file->path),
-            'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+            'rt' => $this->csrfTokenManager->getDefaultTokenValue(),
             'ref' => $request->attributes->get('_contao_referer_id'),
         ]);
 
@@ -196,7 +172,7 @@ class ReplaceFileReferencesController
             'results' => $results,
             'sourceTable' => $sourceTable,
             'sourceId' => $request->get('sourceId'),
-            'requestToken' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+            'requestToken' => $this->csrfTokenManager->getDefaultTokenValue(),
             'fileWidget' => $fileWidget->parse(),
             'fileManagerUrl' => $fileManagerUrl,
             'uploadUrl' => $uploadUrl,

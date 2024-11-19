@@ -43,9 +43,8 @@ services:
             - '@contao_file_usage.replace.file_reference'
             - '@contao_file_usage.file_usage_cache'
             - '@contao_file_usage.result.result_enhancer'
-            - '@security.helper'
+            - '@security.token_storage'
             - '@contao.csrf.token_manager'
-            - '%contao.csrf_token_name%'
         tags: ['controller.service_arguments']
 
     InspiredMinds\ContaoFileUsage\Controller\ShowFileReferencesController:
@@ -55,9 +54,8 @@ services:
             - '@contao_file_usage.file_usage_cache'
             - '@contao_file_usage.finder.file_usage'
             - '@contao_file_usage.result.result_enhancer'
-            - '@security.helper'
+            - '@security.token_storage'
             - '@contao.csrf.token_manager'
-            - '%contao.csrf_token_name%'
         tags: ['controller.service_arguments']
 
     contao_file_usage.cron.build_cache:
@@ -74,7 +72,7 @@ services:
     contao_file_usage.event_listener.data_container.files_permissions:
         class: InspiredMinds\ContaoFileUsage\EventListener\DataContainer\FilesPermissionsCallback
         arguments:
-            - '@security.helper'
+            - '@security.token_storage'
             - '@request_stack'
         tags:
             - { name: contao.callback, table: tl_files, target: config.onload }
@@ -85,7 +83,7 @@ services:
             - '@router'
             - '@contao_file_usage.file_usage_cache'
             - '@translator'
-            - '@security.helper'
+            - '@security.token_storage'
             - '@request_stack'
         tags:
             - { name: contao.callback, table: tl_files, target: list.operations.fileusage.button }
@@ -140,7 +138,6 @@ services:
             - '@router'
             - '@request_stack'
             - '@contao.csrf.token_manager'
-            - '%contao.csrf_token_name%'
 
     contao_file_usage.twig.extension:
         class: InspiredMinds\ContaoFileUsage\Twig\Extension

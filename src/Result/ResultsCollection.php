@@ -73,7 +73,7 @@ class ResultsCollection implements \IteratorAggregate, \ArrayAccess, \Countable
         return isset($this->results[$offset]);
     }
 
-    public function offsetGet($offset): ?Results
+    public function offsetGet($offset): Results|null
     {
         return $this->results[$offset] ?? null;
     }

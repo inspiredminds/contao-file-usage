@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -56,14 +56,12 @@ class FileTreeWidget extends FileTree
             'sourceTable' => $this->dataContainer->table,
             'sourceId' => $this->dataContainer->id,
             'ref' => $request->attributes->get('_contao_referer_id'),
-            'redirect' => base64_encode($request->getUri()),
+            'redirect' => base64_encode((string) $request->getUri()),
         ]);
 
         /** @var TranslatorInterface $translator */
         $translator = $container->get('translator');
 
-        $preview .= '<a class="replace-image" href="'.$url.'" title="'.$translator->trans('replace_image', ['%path%' => $file->path], 'ContaoFileUsage').'"><img src="/bundles/contaofileusage/repeat.svg" alt=""></a>';
-
-        return $preview;
+        return $preview.('<a class="replace-image" href="'.$url.'" title="'.$translator->trans('replace_image', ['%path%' => $file->path], 'ContaoFileUsage').'"><img src="/bundles/contaofileusage/repeat.svg" alt=""></a>');
     }
 }

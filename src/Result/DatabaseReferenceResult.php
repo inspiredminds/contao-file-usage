@@ -14,15 +14,15 @@ namespace InspiredMinds\ContaoFileUsage\Result;
 
 class DatabaseReferenceResult implements ResultInterface
 {
-    private string $table;
-    private string $field;
-    private $id;
-    private ?string $pk = null;
-    private ?string $editUrl = null;
-    private ?string $module = null;
-    private ?string $title = null;
-    private ?string $parentTitle = null;
-    private ?string $parentEditUrl = null;
+    private string|null $editUrl = null;
+
+    private string|null $module = null;
+
+    private string|null $title = null;
+
+    private string|null $parentTitle = null;
+
+    private string|null $parentEditUrl = null;
 
     /**
      * @param string      $table The database table
@@ -30,12 +30,12 @@ class DatabaseReferenceResult implements ResultInterface
      * @param mixed       $id    The ID of the primary key of the database record
      * @param string|null $pk    The primary key of the database table
      */
-    public function __construct(string $table, string $field, $id = null, ?string $pk = null)
-    {
-        $this->table = $table;
-        $this->field = $field;
-        $this->id = $id;
-        $this->pk = $pk;
+    public function __construct(
+        private readonly string $table,
+        private readonly string $field,
+        private readonly mixed $id = null,
+        private readonly string|null $pk = null,
+    ) {
     }
 
     public function getTemplate(): string
@@ -58,7 +58,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this->id;
     }
 
-    public function getPk(): ?string
+    public function getPk(): string|null
     {
         return $this->pk;
     }
@@ -70,7 +70,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this;
     }
 
-    public function getEditUrl(): ?string
+    public function getEditUrl(): string|null
     {
         return $this->editUrl;
     }
@@ -82,7 +82,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this;
     }
 
-    public function getModule(): ?string
+    public function getModule(): string|null
     {
         return $this->module;
     }
@@ -94,7 +94,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string|null
     {
         return $this->title;
     }
@@ -106,7 +106,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this;
     }
 
-    public function getParentTitle(): ?string
+    public function getParentTitle(): string|null
     {
         return $this->parentTitle;
     }
@@ -118,7 +118,7 @@ class DatabaseReferenceResult implements ResultInterface
         return $this;
     }
 
-    public function getParentEditUrl(): ?string
+    public function getParentEditUrl(): string|null
     {
         return $this->parentEditUrl;
     }

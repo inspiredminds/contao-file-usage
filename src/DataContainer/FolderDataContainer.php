@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -26,6 +26,7 @@ use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 if (class_exists(FolderDriver::class)) {
@@ -96,7 +97,7 @@ class FolderDataContainer extends FolderParent
                 /** @var TranslatorInterface $translator */
                 $translator = $container->get('translator');
 
-                if (empty($arrFound)) {
+                if ([] === $arrFound) {
                     Message::addInfo($translator->trans('unused_not_found', [], 'ContaoFileUsage'));
                     Controller::redirect(self::addToUrl('unused=&refresh='));
                 } else {

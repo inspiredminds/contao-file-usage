@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -25,38 +25,20 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 
 class ShowFileReferencesController
 {
-    private $twig;
-    private $framework;
-    private $cache;
-    private $finder;
-    private $enhancer;
-    private $security;
-    private $csrfTokenManager;
-    private $csrfTokenName;
-
     public function __construct(
-        Environment $twig,
-        ContaoFramework $framework,
-        AdapterInterface $cache,
-        FileUsageFinderInterface $finder,
-        ResultEnhancerInterface $enhancer,
-        Security $security,
-        ContaoCsrfTokenManager $csrfTokenManager,
-        string $csrfTokenName
+        private readonly Environment $twig,
+        private readonly ContaoFramework $framework,
+        private readonly AdapterInterface $cache,
+        private readonly FileUsageFinderInterface $finder,
+        private readonly ResultEnhancerInterface $enhancer,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly ContaoCsrfTokenManager $csrfTokenManager,
     ) {
-        $this->twig = $twig;
-        $this->framework = $framework;
-        $this->cache = $cache;
-        $this->finder = $finder;
-        $this->enhancer = $enhancer;
-        $this->security = $security;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->csrfTokenName = $csrfTokenName;
     }
 
     /**
@@ -67,7 +49,7 @@ class ShowFileReferencesController
      */
     public function __invoke(Request $request, string $uuid): Response
     {
-        $user = $this->security->getUser();
+        $user = $this->tokenStorage->getToken()?->getUser();
 
         if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
             throw new AccessDeniedException('No permission to show file references.');
@@ -100,7 +82,7 @@ class ShowFileReferencesController
 
         return new Response($this->twig->render('@ContaoFileUsage/show_file_references.html.twig', [
             'back_url' => $backUrl,
-            'requestToken' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+            'requestToken' => $this->csrfTokenManager->getDefaultTokenValue(),
             'file' => $file,
             '_target_path' => base64_encode($backUrl),
             'results' => $results,

@@ -30,14 +30,12 @@ class DatabaseProvider extends AbstractDatabaseProvider
 {
     private const INSERT_TAG_PATTERN = '~{{(file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
 
-    private ResourceFinder $resourceFinder;
-    private ContaoFramework $framework;
-
-    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework, array $ignoreTables)
-    {
-        $this->resourceFinder = $resourceFinder;
-        $this->framework = $framework;
-
+    public function __construct(
+        Connection $db,
+        private readonly ResourceFinder $resourceFinder,
+        private readonly ContaoFramework $framework,
+        array $ignoreTables,
+    ) {
         parent::__construct($db, $ignoreTables);
     }
 
@@ -78,7 +76,7 @@ class DatabaseProvider extends AbstractDatabaseProvider
         return $collection;
     }
 
-    private function findFileTreeReferences(ResultsCollection $collection, string $table, array $row, ?string $pk = null): void
+    private function findFileTreeReferences(ResultsCollection $collection, string $table, array $row, string|null $pk = null): void
     {
         $fields = $GLOBALS['TL_DCA'][$table]['fields'] ?? [];
 
@@ -109,7 +107,7 @@ class DatabaseProvider extends AbstractDatabaseProvider
         }
     }
 
-    private function addMultipleFileReferences(ResultsCollection $collection, string $table, array $row, string $field, $id = null, ?string $pk = null): void
+    private function addMultipleFileReferences(ResultsCollection $collection, string $table, array $row, string $field, $id = null, string|null $pk = null): void
     {
         // Ignore some fields
         if (\in_array($table, ['tl_user', 'tl_user_group'], true) && 'filemounts' === $field) {
@@ -136,14 +134,14 @@ class DatabaseProvider extends AbstractDatabaseProvider
                 foreach (FilesModel::findByPid($uuid) ?? [] as $child) {
                     $collection->addResult(
                         StringUtil::binToUuid($child->uuid),
-                        new FileTreeMultipleResult($table, $field, $id, $pk)
+                        new FileTreeMultipleResult($table, $field, $id, $pk),
                     );
                 }
             }
         }
     }
 
-    private function findInsertTagReferences(ResultsCollection $collection, string $table, array $row, ?string $pk = null): void
+    private function findInsertTagReferences(ResultsCollection $collection, string $table, array $row, string|null $pk = null): void
     {
         $id = $pk ? $row[$pk] : null;
 

@@ -26,14 +26,15 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
  */
 class DatabasePathProvider extends AbstractDatabaseProvider
 {
-    private ResourceFinder $resourceFinder;
-    private ContaoFramework $framework;
     private string $pathPattern = '~src\s*=\s*"(__contao_upload_path__/.+?)"~';
 
-    public function __construct(Connection $db, ResourceFinder $resourceFinder, ContaoFramework $framework, string $uploadPath, array $ignoreTables)
-    {
-        $this->resourceFinder = $resourceFinder;
-        $this->framework = $framework;
+    public function __construct(
+        Connection $db,
+        private readonly ResourceFinder $resourceFinder,
+        private readonly ContaoFramework $framework,
+        string $uploadPath,
+        array $ignoreTables,
+    ) {
         $this->pathPattern = str_replace('__contao_upload_path__', $uploadPath, $this->pathPattern);
 
         parent::__construct($db, $ignoreTables);
@@ -74,7 +75,7 @@ class DatabasePathProvider extends AbstractDatabaseProvider
         return $collection;
     }
 
-    private function findPathReferences(ResultsCollection $collection, string $table, array $row, ?string $pk = null): void
+    private function findPathReferences(ResultsCollection $collection, string $table, array $row, string|null $pk = null): void
     {
         $id = $pk ? $row[$pk] : null;
 

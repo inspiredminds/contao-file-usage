@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -16,11 +16,8 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class ClearFileUsageCache
 {
-    private $cache;
-
-    public function __construct(AdapterInterface $cache)
+    public function __construct(private readonly AdapterInterface $cache)
     {
-        $this->cache = $cache;
     }
 
     public function __invoke(): void

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -15,22 +15,19 @@ namespace InspiredMinds\ContaoFileUsage\EventListener\DataContainer;
 use Contao\BackendUser;
 use Contao\CoreBundle\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class FilesPermissionsCallback
 {
-    private $security;
-    private $requestStack;
-
-    public function __construct(Security $security, RequestStack $requestStack)
-    {
-        $this->security = $security;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     public function __invoke(): void
     {
-        if (null === ($user = $this->security->getUser())) {
+        if (!$user = $this->tokenStorage->getToken()?->getUser()) {
             return;
         }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -21,40 +21,29 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ShowReferencesButtonCallback
 {
-    private $router;
-    private $cache;
-    private $translator;
-    private $security;
-    private $requestStack;
-
     public function __construct(
-        UrlGeneratorInterface $router,
-        AdapterInterface $cache,
-        TranslatorInterface $translator,
-        Security $security,
-        RequestStack $requestStack
+        private readonly UrlGeneratorInterface $router,
+        private readonly AdapterInterface $cache,
+        private readonly TranslatorInterface $translator,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly RequestStack $requestStack,
     ) {
-        $this->router = $router;
-        $this->cache = $cache;
-        $this->translator = $translator;
-        $this->security = $security;
-        $this->requestStack = $requestStack;
     }
 
     public function __invoke(array $record): string
     {
-        $user = $this->security->getUser();
+        $user = $this->tokenStorage->getToken()?->getUser();
 
         if (!$user instanceof BackendUser || !$user->hasAccess('showreferences', 'fop')) {
             return '';
         }
 
-        $file = FilesModel::findByPath(urldecode($record['id']));
+        $file = FilesModel::findByPath(urldecode((string) $record['id']));
 
         if (null === $file || 'file' !== $file->type) {
             return '';

@@ -14,16 +14,13 @@ namespace InspiredMinds\ContaoFileUsage\Result;
 
 class Results implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private string $uuid;
-
     /**
      * @var list<ResultInterface>
      */
     private array $results = [];
 
-    public function __construct(string $uuid)
+    public function __construct(private readonly string $uuid)
     {
-        $this->uuid = $uuid;
     }
 
     public function getUuid(): string
@@ -86,7 +83,7 @@ class Results implements \IteratorAggregate, \ArrayAccess, \Countable
         return isset($this->results[$offset]);
     }
 
-    public function offsetGet($offset): ?ResultInterface
+    public function offsetGet($offset): ResultInterface|null
     {
         return $this->results[$offset] ?? null;
     }

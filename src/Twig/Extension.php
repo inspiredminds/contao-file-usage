@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -22,15 +22,11 @@ use Twig\TwigFunction;
 
 class Extension extends AbstractExtension
 {
-    private $requestStack;
-    private $framework;
-    private $scopeMatcher;
-
-    public function __construct(RequestStack $requestStack, ContaoFramework $framework, ScopeMatcher $scopeMatcher)
-    {
-        $this->requestStack = $requestStack;
-        $this->framework = $framework;
-        $this->scopeMatcher = $scopeMatcher;
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly ContaoFramework $framework,
+        private readonly ScopeMatcher $scopeMatcher,
+    ) {
     }
 
     public function getFunctions(): array
@@ -48,7 +44,7 @@ class Extension extends AbstractExtension
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request || !$this->scopeMatcher->isBackendRequest($request)) {
+        if (!$request || !$this->scopeMatcher->isBackendRequest($request)) {
             return '';
         }
 

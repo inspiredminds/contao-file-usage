@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -24,11 +24,8 @@ use MadeYourDay\RockSolidCustomElements\RockSolidCustomElementsBundle;
 
 class RocksolidCustomElementsProvider implements FileUsageProviderInterface
 {
-    private $db;
-
-    public function __construct(Connection $db)
+    public function __construct(private readonly Connection $db)
     {
-        $this->db = $db;
     }
 
     public function find(): ResultsCollection
@@ -69,7 +66,7 @@ class RocksolidCustomElementsProvider implements FileUsageProviderInterface
                 continue;
             }
 
-            $rsceData = json_decode($record['rsce_data'], true, 512, \JSON_THROW_ON_ERROR);
+            $rsceData = json_decode((string) $record['rsce_data'], true, 512, JSON_THROW_ON_ERROR);
 
             foreach ($config['fields'] as $field => $fieldConfig) {
                 if (empty($rsceData[$field])) {
@@ -137,7 +134,7 @@ class RocksolidCustomElementsProvider implements FileUsageProviderInterface
                 foreach ($files as $child) {
                     $collection->addResult(
                         StringUtil::binToUuid($child->uuid),
-                        new FileTreeMultipleResult($table, 'rsce_data', $row['id'], 'id')
+                        new FileTreeMultipleResult($table, 'rsce_data', $row['id'], 'id'),
                     );
                 }
             }

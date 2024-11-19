@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -18,11 +18,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class BackendMenuListener
 {
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private readonly RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     public function __invoke(MenuEvent $event): void
@@ -33,15 +30,11 @@ class BackendMenuListener
             return;
         }
 
-        $systemNode = $tree->getChild('system');
-
-        if (null === $systemNode) {
+        if (!$systemNode = $tree->getChild('system')) {
             return;
         }
 
-        $filesNode = $systemNode->getChild('files');
-
-        if (null === $filesNode) {
+        if (!$filesNode = $systemNode->getChild('files')) {
             return;
         }
 

@@ -22,29 +22,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ResultEnhancer implements ResultEnhancerInterface
 {
-    private $framework;
-    private $db;
-    private $urlGenerator;
-    private $requestStack;
-    private $csrfTokenManager;
-    private $csrfTokenName;
-
     private static array $moduleKeyCache = [];
 
     public function __construct(
-        ContaoFramework $framework,
-        Connection $db,
-        UrlGeneratorInterface $urlGenerator,
-        RequestStack $requestStack,
-        ContaoCsrfTokenManager $csrfTokenManager,
-        string $csrfTokenName
+        private readonly ContaoFramework $framework,
+        private readonly Connection $db,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly RequestStack $requestStack,
+        private readonly ContaoCsrfTokenManager $csrfTokenManager,
     ) {
-        $this->framework = $framework;
-        $this->db = $db;
-        $this->urlGenerator = $urlGenerator;
-        $this->requestStack = $requestStack;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->csrfTokenName = $csrfTokenName;
     }
 
     public function enhance(ResultInterface $result): void
@@ -81,14 +67,14 @@ class ResultEnhancer implements ResultEnhancerInterface
         }
 
         // Get edit URL
-        if ($module = $this->getModuleForTable(($record['ptable'] ?? null) ?: $table)) {
+        if ($module = $this->getModuleForTable($record['ptable'] ?? null ?: $table)) {
             $url = $this->urlGenerator->generate('contao_backend', [
                 'do' => $module,
                 'ref' => $request ? $request->attributes->get('_contao_referer_id') : '',
                 'table' => $table,
                 'id' => $result->getId(),
                 'act' => 'edit',
-                'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+                'rt' => $this->csrfTokenManager->getDefaultTokenValue(),
             ]);
 
             $result->setEditUrl($url);
@@ -118,7 +104,7 @@ class ResultEnhancer implements ResultEnhancerInterface
                     'table' => $parentTable,
                     'id' => (int) $record['pid'],
                     'act' => 'edit',
-                    'rt' => $this->csrfTokenManager->getToken($this->csrfTokenName)->getValue(),
+                    'rt' => $this->csrfTokenManager->getDefaultTokenValue(),
                 ]);
 
                 $result->setParentEditUrl($url);
@@ -126,7 +112,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         }
     }
 
-    private function getModuleForTable(string $table): ?string
+    private function getModuleForTable(string $table): string|null
     {
         if (isset(self::$moduleKeyCache[$table])) {
             return self::$moduleKeyCache[$table];
@@ -143,7 +129,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         return null;
     }
 
-    private function getParentTable(string $table, array $record): ?string
+    private function getParentTable(string $table, array $record): string|null
     {
         Controller::loadDataContainer($table);
         $dca = $GLOBALS['TL_DCA'][$table] ?? null;
@@ -155,7 +141,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         $parentTable = null;
 
         if ($dca['config']['dynamicPtable'] ?? false) {
-            $parentTable = ($record['ptable'] ?? null) ?: null;
+            $parentTable = $record['ptable'] ?? null ?: null;
         } else {
             $parentTable = $dca['config']['ptable'] ?? null;
         }
@@ -163,7 +149,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         return $parentTable;
     }
 
-    private function getTitle(string $table, int $id): ?string
+    private function getTitle(string $table, int $id): string|null
     {
         $qb = $this->db->createQueryBuilder();
         $record = $qb
