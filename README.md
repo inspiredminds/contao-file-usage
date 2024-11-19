@@ -82,7 +82,7 @@ do by default). In your interface you will need to reference the Twig template t
 result in the back end:
 
 ```php
-// src/FilesUsage/CustomFileUsageResult.php
+// src/FileUsage/CustomFileUsageResult.php
 use InspiredMinds\ContaoFileUsage\Result\ResultInterface;
 
 class CustomFileUsageResult implements ResultInterface
