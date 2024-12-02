@@ -22,11 +22,11 @@ use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 
 /**
- * Searches the database for file references.
+ * Searches the database for file references in attributes href and src.
  */
 class DatabasePathProvider extends AbstractDatabaseProvider
 {
-    private string $pathPattern = '~src\s*=\s*"(__contao_upload_path__/.+?)"~';
+    private string $pathPattern = '~(href|src)\s*=\s*"(__contao_upload_path__/.+?)"~';
 
     public function __construct(
         Connection $db,
@@ -85,7 +85,7 @@ class DatabasePathProvider extends AbstractDatabaseProvider
             }
 
             if (preg_match_all($this->pathPattern, $data, $matches)) {
-                foreach ($matches[1] ?? [] as $path) {
+                foreach ($matches[2] ?? [] as $path) {
                     $file = FilesModel::findByPath(urldecode($path));
 
                     if (null === $file) {
