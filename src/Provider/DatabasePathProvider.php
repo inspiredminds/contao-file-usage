@@ -35,7 +35,7 @@ class DatabasePathProvider extends AbstractDatabaseProvider
         string $uploadPath,
         array $ignoreTables,
     ) {
-        $this->pathPattern = str_replace('__contao_upload_path__', $uploadPath, $this->pathPattern);
+        $this->pathPattern = str_replace('__contao_upload_path__', preg_quote($uploadPath, '~'), $this->pathPattern);
 
         parent::__construct($db, $ignoreTables);
     }
