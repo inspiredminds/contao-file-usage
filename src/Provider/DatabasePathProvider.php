@@ -26,7 +26,7 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
  */
 class DatabasePathProvider extends AbstractDatabaseProvider
 {
-    private string $pathPattern = '~(href|src)\s*=\s*"(__contao_upload_path__/.+?)"~';
+    private string $pathPattern = '~(href|src)\s*=\s*"(__contao_upload_path__/.+?)([?"])~';
 
     public function __construct(
         Connection $db,
