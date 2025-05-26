@@ -14,16 +14,16 @@ namespace InspiredMinds\ContaoFileUsage\Console;
 
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use Khill\Duration\Duration;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
 
+#[AsCommand('contao_file_usage:warmup', 'Builds the file usage reference cache.')]
 class FileUsageWarmupCommand extends Command
 {
-    protected static $defaultName = 'contao_file_usage:warmup';
-
     public function __construct(
         private readonly FileUsageFinderInterface $finder,
         private readonly Stopwatch|null $stopwatch,
@@ -31,14 +31,7 @@ class FileUsageWarmupCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->setDescription('Builds the file usage reference cache.')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $style = new SymfonyStyle($input, $output);
         $style->section('Warming up the file usage cache …');
@@ -54,6 +47,6 @@ class FileUsageWarmupCommand extends Command
             $style->success('Done in '.(new Duration(round($event->getDuration() / 1000, 3)))->humanize().'!');
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

@@ -19,6 +19,7 @@ use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use Contao\ManagerPlugin\Routing\RoutingPluginInterface;
 use InspiredMinds\ContaoFileUsage\ContaoFileUsageBundle;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class Plugin implements BundlePluginInterface, RoutingPluginInterface
@@ -36,7 +37,7 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
         $path = __DIR__.'/../Controller';
 
         return $resolver
-            ->resolve($path, 'annotation')
+            ->resolve($path, Kernel::MAJOR_VERSION >= 6 ? 'attribute' : 'annotation')
             ->load($path)
         ;
     }
