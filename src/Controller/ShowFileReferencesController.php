@@ -28,6 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 
+#[Route(path: '/contao/show-file-references/{uuid}', name: self::class, defaults: ['_scope' => 'backend'])]
 class ShowFileReferencesController
 {
     public function __construct(
@@ -41,12 +42,6 @@ class ShowFileReferencesController
     ) {
     }
 
-    /**
-     * @Route("/contao/show-file-references/{uuid}",
-     *     name=ShowFileReferencesController::class,
-     *     defaults={"_scope": "backend"}
-     * )
-     */
     public function __invoke(Request $request, string $uuid): Response
     {
         $user = $this->tokenStorage->getToken()?->getUser();

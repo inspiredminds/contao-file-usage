@@ -38,6 +38,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
+#[Route(path: '/contao/replace-file-references/{fileUuid}/{sourceTable}', name: self::class, defaults: ['_scope' => 'backend'])]
 class ReplaceFileReferencesController
 {
     public const SESSION_KEY = 'fileusage';
@@ -56,12 +57,6 @@ class ReplaceFileReferencesController
     ) {
     }
 
-    /**
-     * @Route("/contao/replace-file-references/{fileUuid}/{sourceTable}",
-     *     name=ReplaceFileReferencesController::class,
-     *     defaults={"_scope": "backend"}
-     * )
-     */
     public function __invoke(Request $request, string $fileUuid, string $sourceTable): Response
     {
         $user = $this->tokenStorage->getToken()?->getUser();
