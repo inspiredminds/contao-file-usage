@@ -57,7 +57,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         $record = $qb
             ->select('*')
             ->from($table)
-            ->where($qb->expr()->eq($result->getPk(), $result->getId()))
+            ->where($qb->expr()->eq($result->getPk(), (string) $result->getId()))
             ->fetchAssociative()
         ;
 
@@ -154,7 +154,7 @@ class ResultEnhancer implements ResultEnhancerInterface
         $record = $qb
             ->select('*')
             ->from($table)
-            ->where($qb->expr()->eq('id', $id))
+            ->where($qb->expr()->eq('id', (string) $id))
             ->fetchAssociative()
         ;
 
