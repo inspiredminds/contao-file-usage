@@ -22,7 +22,7 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
  */
 abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
 {
-    private const IGNORE_TABLES = ['tl_version', 'tl_log', 'tl_undo', 'tl_search_index'];
+    private const IGNORE_TABLES = ['tl_version', 'tl_log', 'tl_undo', 'tl_search_index','tl_message_queue'];
 
     private AbstractSchemaManager|null $schemaManager = null;
 
