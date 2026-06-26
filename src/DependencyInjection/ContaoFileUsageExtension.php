@@ -27,5 +27,9 @@ class ContaoFileUsageExtension extends Extension
         $container->registerForAutoconfiguration(FileUsageProviderInterface::class)
             ->addTag('contao_file_usage.provider')
         ;
+
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        $container->setParameter('contao_file_usage.ignore_tables', $config['ignore_tables']);
     }
 }

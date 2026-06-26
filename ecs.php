@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Contao\EasyCodingStandard\Fixer\CommentLengthFixer;
 use Contao\EasyCodingStandard\Set\SetList;
 use PhpCsFixer\Fixer\Comment\HeaderCommentFixer;
+use PhpCsFixer\Fixer\Whitespace\MethodChainingIndentationFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 
 return ECSConfig::configure()
@@ -15,6 +16,9 @@ return ECSConfig::configure()
         __DIR__.'/templates',
     ])
     ->withSkip([
+        MethodChainingIndentationFixer::class => [
+            '*/DependencyInjection/Configuration.php',
+        ],
         CommentLengthFixer::class,
     ])
     ->withConfiguredRule(HeaderCommentFixer::class, [

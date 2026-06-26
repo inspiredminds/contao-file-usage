@@ -16,25 +16,35 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Symfony\Contracts\Service\Attribute\SubscribedService;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use Symfony\Contracts\Service\ServiceSubscriberTrait;
 
 /**
  * Provides common used methods to search the database for file references.
  */
-abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
+abstract class AbstractDatabaseProvider implements FileUsageProviderInterface, ServiceSubscriberInterface
 {
-    private const IGNORE_TABLES = ['tl_version', 'tl_log', 'tl_undo', 'tl_search_index','tl_message_queue'];
+    use ServiceSubscriberTrait;
+
+    protected array $ignoreTables = [];
 
     private AbstractSchemaManager|null $schemaManager = null;
 
-    public function __construct(
-        private readonly Connection $db,
-        protected readonly array $ignoreTables,
-    ) {
+    public function setIgnoreTables(array $ignoreTables): void
+    {
+        $this->ignoreTables = $ignoreTables;
+    }
+
+    #[SubscribedService]
+    protected function connection(): Connection
+    {
+        return $this->container->get(__METHOD__);
     }
 
     protected function getSchemaManager(): AbstractSchemaManager
     {
-        return $this->schemaManager ??= $this->db->createSchemaManager();
+        return $this->schemaManager ??= $this->connection()->createSchemaManager();
     }
 
     protected function getTablesWithResults(): array
@@ -44,11 +54,11 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
         foreach ($this->getSchemaManager()->listTables() as $table) {
             $tableName = $table->getName();
 
-            if (\in_array($tableName, self::IGNORE_TABLES, true)) {
+            if (\in_array($tableName, $this->ignoreTables, true)) {
                 continue;
             }
 
-            $results = $this->db->createQueryBuilder()
+            $results = $this->connection()->createQueryBuilder()
                 ->select('*')
                 ->from($tableName)
                 ->executeQuery()
@@ -72,19 +82,19 @@ abstract class AbstractDatabaseProvider implements FileUsageProviderInterface
             return null;
         }
 
-        if (!$table || null === $table->getPrimaryKey()) {
+        if (!$table || !$table->getPrimaryKey()) {
             return null;
         }
 
         $primaryKey = $table->getPrimaryKey();
 
-        if (null === $primaryKey) {
+        if (!$primaryKey) {
             return null;
         }
 
         $columns = $primaryKey->getColumns();
 
-        if (empty($columns)) {
+        if ([] === $columns) {
             return null;
         }
 

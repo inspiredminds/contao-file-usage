@@ -1,14 +1,14 @@
 parameters:
     contao_file_usage.file_usage_cache_dir: '%kernel.project_dir%/var'
-    contao_file_usage.ignore_tables:
-        - tl_version
-        - tl_log
-        - tl_undo
-        - tl_search_index
 
 services:
     _defaults:
         autoconfigure: true
+
+    _instanceof:
+        Symfony\Contracts\Service\ServiceSubscriberInterface:
+            calls:
+                - [setContainer, ['@Psr\Container\ContainerInterface']]
 
     contao_file_usage.file_usage_cache:
         class: Symfony\Component\Cache\Adapter\FilesystemAdapter
@@ -105,19 +105,15 @@ services:
     contao_file_usage.provider.database:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabaseProvider
         arguments:
-            - '@database_connection'
             - '@contao.resource_finder'
             - '@contao.framework'
-            - '%contao_file_usage.ignore_tables%'
 
     contao_file_usage.provider.database_path:
         class: InspiredMinds\ContaoFileUsage\Provider\DatabasePathProvider
         arguments:
-            - '@database_connection'
             - '@contao.resource_finder'
             - '@contao.framework'
             - '%contao.upload_path%'
-            - '%contao_file_usage.ignore_tables%'
 
     contao_file_usage.provider.rocksolid_custom_elements:
         class: InspiredMinds\ContaoFileUsage\Provider\RocksolidCustomElementsProvider

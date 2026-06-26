@@ -100,3 +100,19 @@ class CustomFileUsageResult implements ResultInterface
 ```
 
 See [here](https://packagist.org/packages/inspiredminds/contao-file-usage/dependents?order_by=name) for possible further examples.
+
+## Ignoring Tables
+
+Since version `4.0.0` you can configure the database tables to be ignored for the build int database providers, when
+searching for file references:
+
+```yaml
+# config/config.yaml
+contao_file_usage:
+    ignore_tables:
+        - tl_version
+        - tl_log
+        - tl_undo
+        - tl_search_index
+        - tl_message_queue
+```

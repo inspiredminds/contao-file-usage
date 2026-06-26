@@ -18,7 +18,6 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
 use Contao\StringUtil;
 use Contao\Validator;
-use Doctrine\DBAL\Connection;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\FileTreeMultipleResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
@@ -31,12 +30,9 @@ class DatabaseProvider extends AbstractDatabaseProvider
     private const INSERT_TAG_PATTERN = '~{{(file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
 
     public function __construct(
-        Connection $db,
         private readonly ResourceFinder $resourceFinder,
         private readonly ContaoFramework $framework,
-        array $ignoreTables,
     ) {
-        parent::__construct($db, $ignoreTables);
     }
 
     public function find(): ResultsCollection
