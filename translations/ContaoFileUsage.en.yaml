@@ -15,3 +15,5 @@ show_file_usage_parent: Parent
 show_file_usage_table: Table
 show_file_usage_record: Record
 unused_not_found: No unused files found.
+filesystem_source: File system
+filesystem_line: 'Line %line%'
