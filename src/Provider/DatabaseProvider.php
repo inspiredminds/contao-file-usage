@@ -18,6 +18,7 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
 use Contao\StringUtil;
 use Contao\Validator;
+use InspiredMinds\ContaoFileUsage\InsertTag\InsertTagParser;
 use InspiredMinds\ContaoFileUsage\Result\DatabaseInsertTagResult;
 use InspiredMinds\ContaoFileUsage\Result\FileTreeMultipleResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
@@ -27,8 +28,6 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
  */
 class DatabaseProvider extends AbstractDatabaseProvider
 {
-    private const INSERT_TAG_PATTERN = '~{{(file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
-
     public function __construct(
         private readonly ResourceFinder $resourceFinder,
         private readonly ContaoFramework $framework,
@@ -146,10 +145,8 @@ class DatabaseProvider extends AbstractDatabaseProvider
                 continue;
             }
 
-            if (preg_match_all(self::INSERT_TAG_PATTERN, $data, $matches)) {
-                foreach ($matches[2] ?? [] as $uuid) {
-                    $collection->addResult($uuid, new DatabaseInsertTagResult($table, $field, $id, $pk));
-                }
+            foreach (InsertTagParser::extractUuids($data) as $uuid) {
+                $collection->addResult($uuid, new DatabaseInsertTagResult($table, $field, $id, $pk));
             }
         }
     }
