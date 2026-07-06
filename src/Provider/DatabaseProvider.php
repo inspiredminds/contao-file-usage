@@ -27,7 +27,7 @@ use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
  */
 class DatabaseProvider extends AbstractDatabaseProvider
 {
-    private const INSERT_TAG_PATTERN = '~{{(file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
+    private const INSERT_TAG_PATTERN = '~{{[a-z]+::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})((\||\?)[^}]+)?}}~';
 
     public function __construct(
         private readonly ResourceFinder $resourceFinder,
@@ -147,7 +147,7 @@ class DatabaseProvider extends AbstractDatabaseProvider
             }
 
             if (preg_match_all(self::INSERT_TAG_PATTERN, $data, $matches)) {
-                foreach ($matches[2] ?? [] as $uuid) {
+                foreach ($matches[1] ?? [] as $uuid) {
                     $collection->addResult($uuid, new DatabaseInsertTagResult($table, $field, $id, $pk));
                 }
             }
