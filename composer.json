@@ -66,5 +66,8 @@
             "php-http/discovery": false,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "conflict": {
+        "symplify/easy-coding-standard": ">=13.2.3 <=13.2.6"
     }
 }
