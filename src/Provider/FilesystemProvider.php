@@ -15,41 +15,33 @@ namespace InspiredMinds\ContaoFileUsage\Provider;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
 use Contao\StringUtil;
+use InspiredMinds\ContaoFileUsage\InsertTag\InsertTagParser;
 use InspiredMinds\ContaoFileUsage\Result\FilesystemResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Scans template and source folders (upload folder, templates, src, ...) for file references - both
- * Contao insert tags and upload path references - and reports the location (path + line) where they
- * are used. The scanned folders and file extensions can be extended/reduced via the bundle config.
+ * Scans files within the file system for file references - both Contao insert tags and references to the
+ * upload path - and reports where they are used (path + line). Which files are scanned is defined through
+ * the paths as well as the include/exclude patterns of the bundle configuration.
  */
 class FilesystemProvider implements FileUsageProviderInterface
 {
-    private const DEFAULT_FOLDERS = ['templates', 'src'];
-
-    private const DEFAULT_EXTENSIONS = ['html5', 'twig', 'css', 'scss', 'php', 'js'];
-
-    // phpcs:disable
-    private const INSERT_TAG_PATTERN = '~{{(?:file|picture|figure)::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})(?:[|?][^}]+)?}}~';
-    // phpcs:enable
-
     private readonly string $pathPattern;
 
     /**
-     * @param list<string> $includeFolders
-     * @param list<string> $excludeFolders
-     * @param list<string> $includeExtensions
-     * @param list<string> $excludeExtensions
+     * @param list<string> $paths           Paths to scan, either absolute or relative to the project dir
+     * @param list<string> $includePatterns Regular expressions the path of a file has to match
+     * @param list<string> $excludePatterns Regular expressions excluding a file from being scanned
      */
     public function __construct(
         private readonly ContaoFramework $framework,
         private readonly string $projectDir,
         private readonly string $uploadPath,
-        private readonly array $includeFolders,
-        private readonly array $excludeFolders,
-        private readonly array $includeExtensions,
-        private readonly array $excludeExtensions,
+        private readonly array $paths,
+        private readonly array $includePatterns,
+        private readonly array $excludePatterns,
     ) {
         // Match any occurrence of "<uploadPath>/<path>" (not only in href/src, but also url(), strings,
         // ...), stopping at the first character that cannot be part of a file path. The look-behind
@@ -62,20 +54,19 @@ class FilesystemProvider implements FileUsageProviderInterface
         $this->framework->initialize();
 
         $collection = new ResultsCollection();
+        $paths = $this->getPaths();
 
-        $folders = $this->getFolders();
-        $extensions = $this->getExtensions();
-
-        if ([] === $folders || [] === $extensions) {
+        if ([] === $paths) {
             return $collection;
         }
 
         $finder = new Finder();
-        $finder->files()->in($folders)->ignoreUnreadableDirs();
-
-        foreach ($extensions as $extension) {
-            $finder->name('*.'.$extension);
-        }
+        $finder
+            ->files()
+            ->in($paths)
+            ->ignoreUnreadableDirs()
+            ->filter(fn (SplFileInfo $file): bool => $this->isScannable($this->getRelativePath($file->getPathname())))
+        ;
 
         foreach ($finder as $file) {
             $relativePath = $this->getRelativePath($file->getPathname());
@@ -90,13 +81,35 @@ class FilesystemProvider implements FileUsageProviderInterface
         return $collection;
     }
 
+    /**
+     * Determines whether the file of the given path has to be scanned.
+     */
+    private function isScannable(string $path): bool
+    {
+        foreach ($this->excludePatterns as $pattern) {
+            if (preg_match($pattern, $path)) {
+                return false;
+            }
+        }
+
+        if ([] === $this->includePatterns) {
+            return true;
+        }
+
+        foreach ($this->includePatterns as $pattern) {
+            if (preg_match($pattern, $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function processLine(ResultsCollection $collection, string $line, string $path, int $lineNumber): void
     {
         // Insert tags carry the UUID directly.
-        if (preg_match_all(self::INSERT_TAG_PATTERN, $line, $matches)) {
-            foreach ($matches[1] as $uuid) {
-                $collection->addResult($uuid, new FilesystemResult($path, $lineNumber));
-            }
+        foreach (InsertTagParser::extractUuids($line) as $uuid) {
+            $collection->addResult($uuid, new FilesystemResult($path, $lineNumber));
         }
 
         // Upload path references have to be resolved to a tracked file to obtain the UUID.
@@ -114,42 +127,36 @@ class FilesystemProvider implements FileUsageProviderInterface
     }
 
     /**
-     * The scanned folders: the defaults (upload folder, templates, src) plus the configured includes,
-     * minus the configured excludes, reduced to the folders that actually exist.
-     *
-     * @return list<string> Absolute paths of existing folders to scan.
-     */
-    private function getFolders(): array
-    {
-        $base = array_merge([$this->uploadPath], self::DEFAULT_FOLDERS);
-        $names = array_diff(array_unique(array_merge($base, $this->includeFolders)), $this->excludeFolders);
-
-        $folders = [];
-
-        foreach ($names as $name) {
-            $path = $this->projectDir.'/'.trim($name, '/');
-
-            if (is_dir($path)) {
-                $folders[] = $path;
-            }
-        }
-
-        return $folders;
-    }
-
-    /**
-     * The scanned extensions: the defaults plus the configured includes, minus the configured excludes.
+     * The configured paths, made absolute and reduced to the ones that actually exist.
      *
      * @return list<string>
      */
-    private function getExtensions(): array
+    private function getPaths(): array
     {
-        $normalize = static fn (string $ext): string => ltrim($ext, '.');
+        $paths = [];
 
-        $extensions = array_map($normalize, array_merge(self::DEFAULT_EXTENSIONS, $this->includeExtensions));
-        $exclude = array_map($normalize, $this->excludeExtensions);
+        foreach ($this->paths as $path) {
+            $path = rtrim($path, '/');
 
-        return array_values(array_diff(array_unique($extensions), $exclude));
+            if ('' === $path) {
+                continue;
+            }
+
+            if (!$this->isAbsolutePath($path)) {
+                $path = $this->projectDir.'/'.ltrim($path, '/');
+            }
+
+            if (is_dir($path)) {
+                $paths[] = $path;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/') || preg_match('~^[A-Za-z]:[\\\\/]~', $path);
     }
 
     private function getRelativePath(string $pathname): string

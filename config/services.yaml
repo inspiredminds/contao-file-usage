@@ -126,10 +126,9 @@ services:
             - '@contao.framework'
             - '%kernel.project_dir%'
             - '%contao.upload_path%'
-            - '%contao_file_usage.filesystem.include_folders%'
-            - '%contao_file_usage.filesystem.exclude_folders%'
-            - '%contao_file_usage.filesystem.include_extensions%'
-            - '%contao_file_usage.filesystem.exclude_extensions%'
+            - '%contao_file_usage.filesystem.paths%'
+            - '%contao_file_usage.filesystem.include_patterns%'
+            - '%contao_file_usage.filesystem.exclude_patterns%'
 
     contao_file_usage.replace.file_reference:
         class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer
