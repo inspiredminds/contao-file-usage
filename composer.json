@@ -46,12 +46,18 @@
             "InspiredMinds\\ContaoFileUsage\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "InspiredMinds\\ContaoFileUsage\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "contao-manager-plugin": "InspiredMinds\\ContaoFileUsage\\ContaoManager\\Plugin"
     },
     "require-dev": {
         "contao/easy-coding-standard": "^6.0",
         "contao/rector": "^1.0",
+        "phpunit/phpunit": "^11.0",
         "shipmonk/composer-dependency-analyser": "^1.4"
     },
     "config": {
