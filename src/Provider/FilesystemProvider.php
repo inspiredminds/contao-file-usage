@@ -54,14 +54,12 @@ class FilesystemProvider implements FileUsageProviderInterface
         $this->framework->initialize();
 
         $collection = new ResultsCollection();
-        $paths = $this->getPaths();
 
-        if ([] === $paths) {
+        if (!$paths = $this->getPaths()) {
             return $collection;
         }
 
-        $finder = new Finder();
-        $finder->files()->in($paths)->ignoreUnreadableDirs();
+        $finder = (new Finder())->files()->in($paths)->ignoreUnreadableDirs();
 
         foreach ($finder as $file) {
             if (!$this->isScannable($file->getPathname())) {
@@ -71,9 +69,11 @@ class FilesystemProvider implements FileUsageProviderInterface
             $relativePath = Path::makeRelative($file->getPathname(), $this->projectDir);
             $lineNumber = 0;
 
-            foreach (preg_split('/\R/', $file->getContents()) ?: [] as $line) {
-                ++$lineNumber;
-                $this->processLine($collection, $line, $relativePath, $lineNumber);
+            $fileObject = $file->openFile('r');
+            $fileObject->setFlags(\SplFileObject::DROP_NEW_LINE);
+
+            foreach ($fileObject as $line) {
+                $this->processLine($collection, $line, $relativePath, ++$lineNumber);
             }
         }
 
@@ -132,16 +132,8 @@ class FilesystemProvider implements FileUsageProviderInterface
      */
     private function getPaths(): array
     {
-        $paths = [];
+        $paths = array_map(fn (string $path): string => Path::makeAbsolute($path, $this->projectDir), $this->paths);
 
-        foreach ($this->paths as $path) {
-            $path = Path::makeAbsolute($path, $this->projectDir);
-
-            if (is_dir($path)) {
-                $paths[] = $path;
-            }
-        }
-
-        return array_values(array_unique($paths));
+        return array_values(array_filter(array_unique($paths), is_dir(...)));
     }
 }

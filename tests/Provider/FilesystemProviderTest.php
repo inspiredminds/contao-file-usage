@@ -52,6 +52,31 @@ class FilesystemProviderTest extends TestCase
         $this->assertSame(2, $result->getLine());
     }
 
+    public function testFindsReferencesWithWindowsLineEndings(): void
+    {
+        $this->givenFile('templates/foo.html5', "<div>\r\n{{file::".self::UUID."}}\r\n</div>");
+
+        $result = iterator_to_array($this->getProvider(['templates'])->find()[self::UUID])[0];
+
+        $this->assertSame(2, $result->getLine());
+    }
+
+    public function testFindsReferencesInTheLastLineWithoutTrailingNewline(): void
+    {
+        $this->givenFile('templates/foo.html5', "<div>\n{{file::".self::UUID.'}}');
+
+        $result = iterator_to_array($this->getProvider(['templates'])->find()[self::UUID])[0];
+
+        $this->assertSame(2, $result->getLine());
+    }
+
+    public function testHandlesEmptyFiles(): void
+    {
+        $this->givenFile('templates/foo.html5', '');
+
+        $this->assertFalse($this->getProvider(['templates'])->find()->hasResults());
+    }
+
     public function testIgnoresFilesNotMatchingTheIncludePatterns(): void
     {
         $this->givenFile('templates/foo.txt', '{{file::'.self::UUID.'}}');
