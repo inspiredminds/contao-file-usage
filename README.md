@@ -136,7 +136,7 @@ And by default only files with the following extensions are scanned:
 * `.js`
 * `.php`
 
-You can customize the path, include and exclude pattners via the config. This is the default config:
+You can customize the path, include and exclude patterns via the config. This is the default config:
 
 ```yaml
 contao_file_usage:
