@@ -22,9 +22,7 @@ namespace InspiredMinds\ContaoFileUsage\InsertTag;
  */
 final class InsertTagParser
 {
-    // phpcs:disable
     public const PATTERN = '~{{[a-z0-9_]+::([a-f0-9]{8}-[a-f0-9]{4}-1[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12})[^}]*}}~';
-    // phpcs:enable
 
     /**
      * Extracts all file UUIDs referenced through insert tags in the given content.
