@@ -116,3 +116,38 @@ contao_file_usage:
         - tl_search_index
         - tl_message_queue
 ```
+
+## Filesystem scan
+
+Since version `4.1.0` the filesystem will also be scanned for references. By default the following folders are scanned
+(if available):
+
+* `files/`
+* `contao/templates/`
+* `src/`
+* `templates/`
+
+And by default only files with the following extensions are scanned:
+
+* `.twig`
+* `.html5`
+* `.css`
+* `.scss`
+* `.js`
+* `.php`
+
+You can customize the path, include and exclude pattners via the config. This is the default config:
+
+```yaml
+contao_file_usage:
+    filesystem:
+        paths:
+            - '%contao.upload_path%'
+            - contao/templates
+            - src
+            - templates
+        include_patterns:
+            - ~\.(twig|html5|css|scss|js|php)$~i
+        exclude_patterns:
+            - ~/(node_modules|vendor)/~
+```
