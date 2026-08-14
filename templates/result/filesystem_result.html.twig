@@ -1,0 +1,8 @@
+{% trans_default_domain 'ContaoFileUsage' %}
+<tr class="even toggle_select hover-row">
+  <td class="tl_file_list">{{ 'filesystem_source'|trans }}</td>
+  <td class="tl_file_list">-</td>
+  <td class="tl_file_list" title="{{ result.getPath() }}">{{ result.getPath() }}</td>
+  <td class="tl_file_list">{{ 'filesystem_line'|trans({ '%line%': result.getLine() }) }}</td>
+  <td class="tl_file_list tl_right_nowrap"></td>
+</tr>

@@ -120,6 +120,16 @@ services:
         arguments:
             - '@database_connection'
 
+    contao_file_usage.provider.filesystem:
+        class: InspiredMinds\ContaoFileUsage\Provider\FilesystemProvider
+        arguments:
+            - '@contao.framework'
+            - '%kernel.project_dir%'
+            - '%contao.upload_path%'
+            - '%contao_file_usage.filesystem.paths%'
+            - '%contao_file_usage.filesystem.include_patterns%'
+            - '%contao_file_usage.filesystem.exclude_patterns%'
+
     contao_file_usage.replace.file_reference:
         class: InspiredMinds\ContaoFileUsage\Replace\FileReferenceReplacer
         arguments:

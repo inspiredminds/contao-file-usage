@@ -15,3 +15,5 @@ show_file_usage_parent: Elternelement
 show_file_usage_table: Tabelle
 show_file_usage_record: Eintrag
 unused_not_found: Keine unbenutzten Dateien gefunden.
+filesystem_source: Dateisystem
+filesystem_line: 'Zeile %line%'

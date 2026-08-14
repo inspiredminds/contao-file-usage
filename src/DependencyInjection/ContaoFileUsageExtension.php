@@ -31,5 +31,10 @@ class ContaoFileUsageExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $container->setParameter('contao_file_usage.ignore_tables', $config['ignore_tables']);
+
+        $filesystem = $config['filesystem'];
+        $container->setParameter('contao_file_usage.filesystem.paths', $filesystem['paths']);
+        $container->setParameter('contao_file_usage.filesystem.include_patterns', $filesystem['include_patterns']);
+        $container->setParameter('contao_file_usage.filesystem.exclude_patterns', $filesystem['exclude_patterns']);
     }
 }
