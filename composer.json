@@ -38,7 +38,7 @@
         "symfony/security-core": "^5.4 || ^6.4 || ^7.4",
         "symfony/service-contracts": "^2.5 || ^3.0",
         "symfony/stopwatch": "^5.4 || ^6.4 || ^7.4",
-        "symfony/translation": "^5.4 || ^6.4 || ^7.4",
+        "symfony/translation-contracts": "^2.5 || ^3.0",
         "twig/twig": "^3.18"
     },
     "autoload": {
@@ -62,6 +62,14 @@
         }
     },
     "conflict": {
-        "symplify/easy-coding-standard": ">=13.2.3 <=13.2.6"
+        "rector/rector": ">=2.6.0"
+    },
+    "scripts": {
+        "cs": [
+            "@ecs",
+            "@rector"
+        ],
+        "ecs": "@php vendor/bin/ecs --fix",
+        "rector": "@php vendor/bin/rector"
     }
 }
