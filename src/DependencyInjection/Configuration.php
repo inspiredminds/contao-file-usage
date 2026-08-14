@@ -34,7 +34,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->arrayNode('paths')
                             ->info('The paths to be scanned, either absolute or relative to the project dir.')
-                            ->defaultValue(['%contao.upload_path%', 'templates', 'src'])
+                            ->defaultValue(['%contao.upload_path%', 'contao/templates', 'src', 'templates'])
                             ->scalarPrototype()->cannotBeEmpty()->end()
                         ->end()
                         ->arrayNode('include_patterns')
