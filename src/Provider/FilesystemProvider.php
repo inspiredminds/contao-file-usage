@@ -18,6 +18,7 @@ use Contao\StringUtil;
 use InspiredMinds\ContaoFileUsage\InsertTag\InsertTagParser;
 use InspiredMinds\ContaoFileUsage\Result\FilesystemResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -65,11 +66,11 @@ class FilesystemProvider implements FileUsageProviderInterface
             ->files()
             ->in($paths)
             ->ignoreUnreadableDirs()
-            ->filter(fn (SplFileInfo $file): bool => $this->isScannable($this->getRelativePath($file->getPathname())))
+            ->filter(fn (SplFileInfo $file): bool => $this->isScannable(Path::makeRelative($file->getPathname(), $this->projectDir)))
         ;
 
         foreach ($finder as $file) {
-            $relativePath = $this->getRelativePath($file->getPathname());
+            $relativePath = Path::makeRelative($file->getPathname(), $this->projectDir);
             $lineNumber = 0;
 
             foreach (preg_split('/\R/', $file->getContents()) ?: [] as $line) {
@@ -136,15 +137,7 @@ class FilesystemProvider implements FileUsageProviderInterface
         $paths = [];
 
         foreach ($this->paths as $path) {
-            $path = rtrim($path, '/');
-
-            if ('' === $path) {
-                continue;
-            }
-
-            if (!$this->isAbsolutePath($path)) {
-                $path = $this->projectDir.'/'.ltrim($path, '/');
-            }
+            $path = Path::makeAbsolute($path, $this->projectDir);
 
             if (is_dir($path)) {
                 $paths[] = $path;
@@ -152,19 +145,5 @@ class FilesystemProvider implements FileUsageProviderInterface
         }
 
         return array_values(array_unique($paths));
-    }
-
-    private function isAbsolutePath(string $path): bool
-    {
-        return str_starts_with($path, '/') || preg_match('~^[A-Za-z]:[\\\\/]~', $path);
-    }
-
-    private function getRelativePath(string $pathname): string
-    {
-        if (str_starts_with($pathname, $this->projectDir.'/')) {
-            return substr($pathname, \strlen($this->projectDir) + 1);
-        }
-
-        return $pathname;
     }
 }
