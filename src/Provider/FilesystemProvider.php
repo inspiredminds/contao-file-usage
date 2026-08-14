@@ -20,7 +20,6 @@ use InspiredMinds\ContaoFileUsage\Result\FilesystemResult;
 use InspiredMinds\ContaoFileUsage\Result\ResultsCollection;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Scans files within the file system for file references - both Contao insert tags and references to the
@@ -62,14 +61,13 @@ class FilesystemProvider implements FileUsageProviderInterface
         }
 
         $finder = new Finder();
-        $finder
-            ->files()
-            ->in($paths)
-            ->ignoreUnreadableDirs()
-            ->filter(fn (SplFileInfo $file): bool => $this->isScannable(Path::makeRelative($file->getPathname(), $this->projectDir)))
-        ;
+        $finder->files()->in($paths)->ignoreUnreadableDirs();
 
         foreach ($finder as $file) {
+            if (!$this->isScannable($file->getPathname())) {
+                continue;
+            }
+
             $relativePath = Path::makeRelative($file->getPathname(), $this->projectDir);
             $lineNumber = 0;
 
