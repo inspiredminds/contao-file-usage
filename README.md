@@ -117,7 +117,7 @@ contao_file_usage:
         - tl_message_queue
 ```
 
-## Filesystem scan
+## Filesystem Scan
 
 Since version `4.1.0` the filesystem will also be scanned for references. By default the following folders are scanned
 (if available):
