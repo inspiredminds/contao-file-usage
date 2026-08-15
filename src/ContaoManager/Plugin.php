@@ -37,7 +37,7 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
         $path = __DIR__.'/../Controller';
 
         return $resolver
-            ->resolve($path, Kernel::MAJOR_VERSION >= 6 ? 'attribute' : 'annotation')
+            ->resolve($path, 'attribute')
             ->load($path)
         ;
     }
