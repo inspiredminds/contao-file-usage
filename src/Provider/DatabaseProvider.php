@@ -46,6 +46,7 @@ class DatabaseProvider extends AbstractDatabaseProvider
             // Check if DCA exists
             $dcaExists = $this->resourceFinder->findIn('dca')->depth(0)->files()->name($tableName.'.php')->hasResults();
             $hasFileTree = false;
+            $hasFineUploader = false;
 
             if ($dcaExists) {
                 Controller::loadDataContainer($tableName);
@@ -54,7 +55,10 @@ class DatabaseProvider extends AbstractDatabaseProvider
                 foreach ($fields as $config) {
                     if ('fileTree' === ($config['inputType'] ?? '')) {
                         $hasFileTree = true;
-                        break;
+                    }
+
+                    if ('fineUploader' === ($config['inputType'] ?? '')) {
+                        $hasFineUploader = true;
                     }
                 }
             }
@@ -62,6 +66,10 @@ class DatabaseProvider extends AbstractDatabaseProvider
             foreach ($results->iterateAssociative() as $result) {
                 if ($hasFileTree) {
                     $this->findFileTreeReferences($collection, $tableName, $result, $pk);
+                }
+
+                if ($hasFineUploader) {
+                    $this->findFineUploaderReferences($collection, $tableName, $result, $pk);
                 }
 
                 $this->findInsertTagReferences($collection, $tableName, $result, $pk);
@@ -132,6 +140,43 @@ class DatabaseProvider extends AbstractDatabaseProvider
                         new FileTreeMultipleResult($table, $field, $id, $pk),
                     );
                 }
+            }
+        }
+    }
+
+    private function findFineUploaderReferences(ResultsCollection $collection, string $table, array $row, string|null $pk = null): void
+    {
+        $fields = $GLOBALS['TL_DCA'][$table]['fields'] ?? [];
+        $id = $pk ? $row[$pk] : null;
+
+        foreach ($fields as $field => $config) {
+            if ('fineUploader' !== ($config['inputType'] ?? '') || empty($row[$field])) {
+                continue;
+            }
+
+            foreach (StringUtil::deserialize($row[$field], true) as $reference) {
+                if (\is_array($reference)) {
+                    $reference = $reference['uuid'] ?? $reference['tmp_name'] ?? null;
+                }
+
+                if (!\is_string($reference) || '' === $reference) {
+                    continue;
+                }
+
+                if (Validator::isUuid($reference)) {
+                    $file = FilesModel::findByUuid($reference);
+                } else {
+                    $file = FilesModel::findByPath($reference);
+                }
+
+                if (null === $file || null === $file->uuid) {
+                    continue;
+                }
+
+                $collection->addResult(
+                    StringUtil::binToUuid($file->uuid),
+                    new FileTreeMultipleResult($table, $field, $id, $pk),
+                );
             }
         }
     }
