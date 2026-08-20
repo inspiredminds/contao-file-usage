@@ -167,7 +167,7 @@ class DatabaseProvider extends AbstractDatabaseProvider
                     $file = FilesModel::findByPath($reference);
                 }
 
-                if (null === $file || null === $file->uuid) {
+                if (!$file?->uuid) {
                     continue;
                 }
 
