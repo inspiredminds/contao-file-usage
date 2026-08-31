@@ -31,6 +31,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -54,6 +55,7 @@ class ReplaceFileReferencesController
         private readonly ResultEnhancerInterface $enhancer,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly ContaoCsrfTokenManager $csrfTokenManager,
+        private readonly UriSigner $uriSigner,
     ) {
     }
 
@@ -95,7 +97,7 @@ class ReplaceFileReferencesController
         if ($redirect = $request->query->get('redirect')) {
             $backUrl = base64_decode($redirect, true);
         } else {
-            $backUrl = System::getReferer(false, $sourceTable);
+            $backUrl = $this->urlGenerator->generate('contao_backend', ['do' => 'files', 'ref' => $request->attributes->get('_contao_referer_id')]);
         }
 
         $session = $request->getSession();

@@ -45,6 +45,7 @@ services:
             - '@contao_file_usage.result.result_enhancer'
             - '@security.token_storage'
             - '@contao.csrf.token_manager'
+            - '@uri_signer'
         tags: ['controller.service_arguments']
 
     InspiredMinds\ContaoFileUsage\Controller\ShowFileReferencesController:
@@ -56,6 +57,7 @@ services:
             - '@contao_file_usage.result.result_enhancer'
             - '@security.token_storage'
             - '@contao.csrf.token_manager'
+            - '@router'
         tags: ['controller.service_arguments']
 
     contao_file_usage.cron.build_cache:

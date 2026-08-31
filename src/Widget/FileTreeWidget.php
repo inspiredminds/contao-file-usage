@@ -19,6 +19,7 @@ use Contao\FileTree;
 use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController;
+use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -58,6 +59,10 @@ class FileTreeWidget extends FileTree
             'ref' => $request->attributes->get('_contao_referer_id'),
             'redirect' => base64_encode((string) $request->getUri()),
         ]);
+
+        /** @var UriSigner $uriSigner */
+        $uriSigner = System::getContainer()->get('uri_signer');
+        $url = $uriSigner->sign($url);
 
         /** @var TranslatorInterface $translator */
         $translator = $container->get('translator');

@@ -17,7 +17,6 @@ use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
 use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FilesModel;
-use Contao\System;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use InspiredMinds\ContaoFileUsage\Result\ResultEnhancerInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
@@ -25,6 +24,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 
@@ -39,6 +39,7 @@ class ShowFileReferencesController
         private readonly ResultEnhancerInterface $enhancer,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly ContaoCsrfTokenManager $csrfTokenManager,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -55,7 +56,7 @@ class ShowFileReferencesController
         if ($redirect = $request->request->get('_target_path', $request->query->get('redirect'))) {
             $backUrl = base64_decode($redirect, true);
         } else {
-            $backUrl = System::getReferer(false);
+            $backUrl = $this->urlGenerator->generate('contao_backend', ['do' => 'files', 'ref' => $request->attributes->get('_contao_referer_id')]);
         }
 
         if ('refresh_file_usage' === $request->request->get('FORM_SUBMIT')) {

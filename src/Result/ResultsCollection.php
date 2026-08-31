@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the Contao File Usage extension.
  *
- * (c) inspiredminds
+ * (c) INSPIRED MINDS
  *
  * @license LGPL-3.0-or-later
  */
@@ -34,9 +34,7 @@ class ResultsCollection implements \IteratorAggregate, \ArrayAccess, \Countable
     public function addResults(string $uuid, Results $results): self
     {
         if ($results->hasResults()) {
-            if (!isset($this->results[$uuid])) {
-                $this->results[$uuid] = new Results($uuid);
-            }
+            $this->results[$uuid] ??= new Results($uuid);
 
             $this->results[$uuid]->addResults($results);
         }
@@ -51,9 +49,7 @@ class ResultsCollection implements \IteratorAggregate, \ArrayAccess, \Countable
 
     public function addResult(string $uuid, ResultInterface $result): self
     {
-        if (!isset($this->results[$uuid])) {
-            $this->results[$uuid] = new Results($uuid);
-        }
+        $this->results[$uuid] ??= new Results($uuid);
 
         $this->results[$uuid]->addResult($result);
 
