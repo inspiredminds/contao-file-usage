@@ -22,7 +22,7 @@
   </td>
   <td class="tl_file_list tl_right_nowrap">
     {% if result.getEditUrl()|default %}
-      <a class="edit" href="{{ result.getEditUrl() }}" title="{{ 'edit_record'|trans({ '%record%': result.getTable() ~ '.' ~ result.getId() }) }}"><img src="/system/themes/flexible/icons/edit.svg" alt="" width="16" height="16"></a>
+      <a class="edit" href="{{ result.getEditUrl() }}" title="{{ 'edit_record'|trans({ '%record%': result.getTable() ~ '.' ~ result.getId() }) }}">{{ backend_icon('edit.svg') }}</a>
     {% endif %}
   </td>
 </tr>
