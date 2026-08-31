@@ -94,10 +94,12 @@ class ReplaceFileReferencesController
             return new Response($fileWidget->generate());
         }
 
-        if ($redirect = $request->query->get('redirect')) {
+        if ($targetPath = $request->request->get('_target_path')) {
+            $backUrl = base64_decode($targetPath, true);
+        } elseif (($redirect = $request->query->get('redirect')) && $this->uriSigner->checkRequest($request)) {
             $backUrl = base64_decode($redirect, true);
         } else {
-            $backUrl = $this->urlGenerator->generate('contao_backend', ['do' => 'files', 'ref' => $request->attributes->get('_contao_referer_id')]);
+            $backUrl = $this->urlGenerator->generate('contao_backend', ['do' => 'files', 'ref' => $request->attributes->get('_contao_referer_id')], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         $session = $request->getSession();
@@ -118,7 +120,7 @@ class ReplaceFileReferencesController
                 $this->cache->deleteItem($uuid);
                 $session->remove(self::SESSION_KEY);
 
-                return new RedirectResponse($request->request->get('_target_path', $backUrl));
+                return new RedirectResponse($backUrl);
             }
         }
 
@@ -168,6 +170,7 @@ class ReplaceFileReferencesController
         return new Response($this->twig->render('@ContaoFileUsage/replace_file_references.html.twig', [
             'file' => $file,
             'back_url' => $backUrl,
+            'target_path' => base64_encode($backUrl),
             'results' => $results,
             'sourceTable' => $sourceTable,
             'sourceId' => $request->get('sourceId'),

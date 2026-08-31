@@ -35,7 +35,7 @@
   <form method="post" class="tl_form tl_edit_form" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="REQUEST_TOKEN" value="{{ requestToken }}">
     <input type="hidden" name="FORM_SUBMIT" value="refresh_file_usage">
-    <input type="hidden" name="redirect" value="{{ back_url }}">
+    <input type="hidden" name="_target_path" value="{{ target_path }}">
     <div class="tl_formbody_submit">
       <div class="tl_submit_container">
         <button class="tl_submit" type="submit">{{ 'refresh_file_usage'|trans }}</button>

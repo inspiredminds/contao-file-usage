@@ -58,6 +58,7 @@ services:
             - '@security.token_storage'
             - '@contao.csrf.token_manager'
             - '@router'
+            - '@uri_signer'
         tags: ['controller.service_arguments']
 
     contao_file_usage.cron.build_cache:

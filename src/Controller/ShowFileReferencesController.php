@@ -23,6 +23,7 @@ use InspiredMinds\ContaoFileUsage\Result\Results;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\UriSigner;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -40,6 +41,7 @@ class ShowFileReferencesController
         private readonly TokenStorageInterface $tokenStorage,
         private readonly ContaoCsrfTokenManager $csrfTokenManager,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly UriSigner $uriSigner,
     ) {
     }
 
@@ -53,7 +55,9 @@ class ShowFileReferencesController
 
         $this->framework->initialize();
 
-        if ($redirect = $request->request->get('_target_path', $request->query->get('redirect'))) {
+        if ($targetPath = $request->request->get('_target_path')) {
+            $backUrl = base64_decode($targetPath, true);
+        } elseif (($redirect = $request->query->get('redirect')) && $this->uriSigner->checkRequest($request)) {
             $backUrl = base64_decode($redirect, true);
         } else {
             $backUrl = $this->urlGenerator->generate('contao_backend', ['do' => 'files', 'ref' => $request->attributes->get('_contao_referer_id')]);
@@ -80,7 +84,7 @@ class ShowFileReferencesController
             'back_url' => $backUrl,
             'requestToken' => $this->csrfTokenManager->getDefaultTokenValue(),
             'file' => $file,
-            '_target_path' => base64_encode($backUrl),
+            'target_path' => base64_encode($backUrl),
             'results' => $results,
         ]));
     }

@@ -20,6 +20,7 @@ use Contao\StringUtil;
 use Contao\System;
 use InspiredMinds\ContaoFileUsage\Controller\ReplaceFileReferencesController;
 use Symfony\Component\HttpFoundation\UriSigner;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -52,13 +53,17 @@ class FileTreeWidget extends FileTree
         $router = $container->get('router');
         /** @var Request $request */
         $request = $container->get('request_stack')->getCurrentRequest();
-        $url = $router->generate(ReplaceFileReferencesController::class, [
-            'fileUuid' => StringUtil::binToUuid($model->uuid),
-            'sourceTable' => $this->dataContainer->table,
-            'sourceId' => $this->dataContainer->id,
-            'ref' => $request->attributes->get('_contao_referer_id'),
-            'redirect' => base64_encode((string) $request->getUri()),
-        ]);
+        $url = $router->generate(
+            ReplaceFileReferencesController::class,
+            [
+                'fileUuid' => StringUtil::binToUuid($model->uuid),
+                'sourceTable' => $this->dataContainer->table,
+                'sourceId' => $this->dataContainer->id,
+                'ref' => $request->attributes->get('_contao_referer_id'),
+                'redirect' => base64_encode((string) $request->getUri()),
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
 
         /** @var UriSigner $uriSigner */
         $uriSigner = System::getContainer()->get('uri_signer');
