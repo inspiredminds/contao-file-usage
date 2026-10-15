@@ -24,7 +24,6 @@ use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 use InspiredMinds\ContaoFileUsage\Result\Results;
 use InspiredMinds\ContaoImageAlternatives\DataContainer\FolderDriver;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -42,6 +41,15 @@ if (class_exists(FolderDriver::class)) {
 class FolderDataContainer extends FolderParent
 {
     protected static $firstIteration = false;
+
+    /**
+     * Paths of all unused files. Contao may call generateTree() more than once per
+     * request (e.g. Contao 5.7 pre-counts the tree before rendering it), so the
+     * filter has to be applied on every call, not only on the first one.
+     *
+     * @var list<string>
+     */
+    protected static array $unusedFiles = [];
 
     protected function generateTree($path, $intMargin, $mount = false, $blnProtected = true, $arrClipboard = null, $arrFound = [])
     {
@@ -69,11 +77,10 @@ class FolderDataContainer extends FolderParent
 
             if (!self::$firstIteration) {
                 $unused = [];
-                $projectDir = System::getContainer()->getParameter('kernel.project_dir');
-                $relativePath = Path::makeRelative($path, $projectDir);
 
+                // Collect all files, as the list is shared by the calls for every file mount
                 /** @var FilesModel $file */
-                foreach (FilesModel::findBy(["type = 'file'", 'path LIKE ?'], [rtrim($relativePath, '/').'/%']) ?? [] as $file) {
+                foreach (FilesModel::findBy('type', 'file') ?? [] as $file) {
                     $uuid = StringUtil::binToUuid($file->uuid);
 
                     $item = $cache->getItem($uuid);
@@ -88,16 +95,16 @@ class FolderDataContainer extends FolderParent
                     }
                 }
 
+                self::$unusedFiles = $unused;
+
                 if (!empty($arrFound)) {
                     $unused = array_intersect($arrFound, $unused);
                 }
 
-                $arrFound = $unused;
-
                 /** @var TranslatorInterface $translator */
                 $translator = $container->get('translator');
 
-                if ([] === $arrFound) {
+                if ([] === $unused) {
                     Message::addInfo($translator->trans('unused_not_found', [], 'ContaoFileUsage'));
                     Controller::redirect(self::addToUrl('unused=&refresh='));
                 } else {
@@ -117,6 +124,8 @@ class FolderDataContainer extends FolderParent
 
                 self::$firstIteration = true;
             }
+
+            $arrFound = empty($arrFound) ? self::$unusedFiles : array_intersect($arrFound, self::$unusedFiles);
         }
 
         return parent::generateTree($path, $intMargin, $mount, $blnProtected, $arrClipboard, $arrFound);
