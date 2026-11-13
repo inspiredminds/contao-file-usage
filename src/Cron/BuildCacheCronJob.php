@@ -14,12 +14,10 @@ namespace InspiredMinds\ContaoFileUsage\Cron;
 
 use Contao\CoreBundle\Cron\Cron;
 use Contao\CoreBundle\Exception\CronExecutionSkippedException;
-use Contao\CoreBundle\ServiceAnnotation\CronJob;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsCronJob;
 use InspiredMinds\ContaoFileUsage\Finder\FileUsageFinderInterface;
 
-/**
- * @CronJob("daily")
- */
+#[AsCronJob('daily')]
 class BuildCacheCronJob
 {
     public function __construct(private readonly FileUsageFinderInterface $finder)
